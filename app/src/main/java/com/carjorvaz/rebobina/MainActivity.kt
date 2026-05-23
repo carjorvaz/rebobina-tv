@@ -23,6 +23,7 @@ class MainActivity : Activity() {
     private lateinit var catalog: CatchupCatalog
     private lateinit var statusText: TextView
     private lateinit var targetText: TextView
+    private lateinit var channelRailTitle: TextView
     private lateinit var dayList: LinearLayout
     private lateinit var channelList: LinearLayout
     private lateinit var programmeList: LinearLayout
@@ -33,8 +34,10 @@ class MainActivity : Activity() {
     private val programmeRows = mutableMapOf<String, View>()
 
     private var watchAction: View? = null
+    private var browseMode = BrowseMode.Schedule
     private var selectedDayId = ""
     private var selectedChannelId = ""
+    private var selectedSeriesGroupId = ""
     private var selectedProgrammeId: String? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -46,7 +49,7 @@ class MainActivity : Activity() {
         buildUi()
         renderAll()
         updateTargetStatus()
-        dayRows[selectedDayId]?.requestFocus()
+        dayRows[selectedFirstRailId()]?.requestFocus()
     }
 
     override fun onResume() {
@@ -138,9 +141,16 @@ class MainActivity : Activity() {
             setBaselineAligned(false)
             setPadding(0, dp(14), 0, 0)
         }
-        columns.addView(buildRail(getString(R.string.days)) { dayList = it }, columnParams(dp(135)))
-        columns.addView(buildRail(getString(R.string.channels)) { channelList = it }, columnParams(dp(165)))
-        columns.addView(buildRail(getString(R.string.programmes)) { programmeList = it }, columnParams(dp(280)))
+        columns.addView(buildRail(title = getString(R.string.browse), assign = { dayList = it }), columnParams(dp(155)))
+        columns.addView(
+            buildRail(
+                title = getString(R.string.channels),
+                assign = { channelList = it },
+                assignTitle = { channelRailTitle = it },
+            ),
+            columnParams(dp(185)),
+        )
+        columns.addView(buildRail(title = getString(R.string.programmes), assign = { programmeList = it }), columnParams(dp(300)))
         columns.addView(buildDetailPanel(), LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f).withLeftMargin(dp(16)))
         root.addView(columns, LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 0, 1f))
 
@@ -150,13 +160,19 @@ class MainActivity : Activity() {
     private fun columnParams(width: Int): LinearLayout.LayoutParams =
         LinearLayout.LayoutParams(width, ViewGroup.LayoutParams.MATCH_PARENT).withLeftMargin(dp(16))
 
-    private fun buildRail(title: String, assign: (LinearLayout) -> Unit): LinearLayout {
+    private fun buildRail(
+        title: String,
+        assign: (LinearLayout) -> Unit,
+        assignTitle: (TextView) -> Unit = {},
+    ): LinearLayout {
         val list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
         }
         assign(list)
+        val titleView = panelTitle(title)
+        assignTitle(titleView)
         return panel().apply {
-            addView(panelTitle(title))
+            addView(titleView)
             addView(
                 ScrollView(this@MainActivity).apply {
                     isFillViewport = true
@@ -203,8 +219,27 @@ class MainActivity : Activity() {
         dayRows.clear()
         dayList.removeAllViews()
 
+        dayList.addView(sectionLabel(getString(R.string.discovery)), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(34)))
+        addDiscoveryRow(
+            id = BROWSE_MOVIES_ID,
+            selected = browseMode == BrowseMode.Movies,
+            title = getString(R.string.movies),
+            subtitle = getString(R.string.movie_discovery_subtitle),
+            meta = programmeCountText(catalog.movieProgrammes().size),
+            action = ::selectMovies,
+        )
+        addDiscoveryRow(
+            id = BROWSE_SERIES_ID,
+            selected = browseMode == BrowseMode.Series,
+            title = getString(R.string.series),
+            subtitle = getString(R.string.series_discovery_subtitle),
+            meta = episodeCountText(catalog.programmes.count { it.isSeries }),
+            action = ::selectSeries,
+        )
+
+        dayList.addView(sectionLabel(getString(R.string.days)), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(38)).withTopMargin(dp(12)))
         catalog.days.forEach { day ->
-            val selected = day.id == selectedDayId
+            val selected = browseMode == BrowseMode.Schedule && day.id == selectedDayId
             val row = focusRow(
                 selected = selected,
                 contentDescription = "${day.label}, ${day.subtitle}",
@@ -215,7 +250,7 @@ class MainActivity : Activity() {
                     stackedText(
                         title = day.label,
                         subtitle = day.subtitle,
-                        meta = "${programmeCountForDay(day.id)} programas",
+                        meta = programmeCountText(programmeCountForDay(day.id)),
                     ),
                     LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f),
                 )
@@ -225,15 +260,60 @@ class MainActivity : Activity() {
         }
 
         dayList.addView(sectionLabel(getString(R.string.official_shortcuts)), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(38)).withTopMargin(dp(12)))
-        dayList.addView(shortcutButton(getString(R.string.open_flashback)) { openProviderRoute("u7d") }, buttonParams())
-        dayList.addView(shortcutButton(getString(R.string.open_guide)) { openProviderRoute("epg") }, buttonParams())
-        dayList.addView(shortcutButton(getString(R.string.open_search)) { openProviderRoute("search") }, buttonParams())
+        addShortcutRow(SHORTCUT_FLASHBACK_ID, getString(R.string.open_flashback)) { openProviderRoute("u7d") }
+        addShortcutRow(SHORTCUT_GUIDE_ID, getString(R.string.open_guide)) { openProviderRoute("epg") }
+        addShortcutRow(SHORTCUT_SEARCH_ID, getString(R.string.open_search)) { openProviderRoute("search") }
+    }
+
+    private fun addDiscoveryRow(
+        id: String,
+        selected: Boolean,
+        title: String,
+        subtitle: String,
+        meta: String,
+        action: () -> Unit,
+    ) {
+        val row = focusRow(
+            selected = selected,
+            contentDescription = "$title, $subtitle",
+            action = action,
+        ).apply {
+            addView(
+                stackedText(
+                    title = title,
+                    subtitle = subtitle,
+                    meta = meta,
+                ),
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f),
+            )
+        }
+        dayRows[id] = row
+        dayList.addView(row, rowParams(dp(76)))
+    }
+
+    private fun addShortcutRow(id: String, text: String, action: () -> Unit) {
+        val button = shortcutButton(text, action)
+        dayRows[id] = button
+        dayList.addView(button, buttonParams())
     }
 
     private fun renderChannels() {
         channelRows.clear()
         channelList.removeAllViews()
+        channelRailTitle.text = when (browseMode) {
+            BrowseMode.Schedule -> getString(R.string.channels)
+            BrowseMode.Movies -> getString(R.string.movies)
+            BrowseMode.Series -> getString(R.string.series)
+        }
 
+        when (browseMode) {
+            BrowseMode.Schedule -> renderChannelRows()
+            BrowseMode.Movies -> renderMovieGroupRows()
+            BrowseMode.Series -> renderSeriesGroupRows()
+        }
+    }
+
+    private fun renderChannelRows() {
         catalog.channels.forEach { channel ->
             val programmes = catalog.programmesFor(selectedDayId, channel.id)
             val selected = channel.id == selectedChannelId
@@ -256,7 +336,7 @@ class MainActivity : Activity() {
                 addView(
                     stackedText(
                         title = channel.name,
-                        subtitle = "Canal ${channel.number}",
+                        subtitle = getString(R.string.channel_number, channel.number),
                         meta = programmeCountText(programmes.size),
                     ),
                     LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f),
@@ -267,13 +347,69 @@ class MainActivity : Activity() {
         }
     }
 
+    private fun renderMovieGroupRows() {
+        val movies = catalog.movieProgrammes()
+        val row = focusRow(
+            selected = true,
+            contentDescription = getString(R.string.all_films),
+        ) {
+            selectMovieGroup()
+        }.apply {
+            addView(
+                stackedText(
+                    title = getString(R.string.all_films),
+                    subtitle = getString(R.string.all_films_subtitle),
+                    meta = programmeCountText(movies.size),
+                ),
+                LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f),
+            )
+        }
+        channelRows[MOVIES_GROUP_ID] = row
+        channelList.addView(row, rowParams(dp(76)))
+    }
+
+    private fun renderSeriesGroupRows() {
+        val groups = catalog.seriesGroups()
+        if (groups.isEmpty()) {
+            selectedSeriesGroupId = ""
+            channelList.addView(emptyText(getString(R.string.no_series)))
+            return
+        }
+        if (selectedSeriesGroupId !in groups.map { it.id }) {
+            selectedSeriesGroupId = groups.first().id
+        }
+        groups.forEach { group ->
+            val selected = group.id == selectedSeriesGroupId
+            val row = focusRow(
+                selected = selected,
+                accent = group.episodes.firstOrNull()?.accent,
+                contentDescription = group.title,
+            ) {
+                selectSeriesGroup(group.id)
+            }.apply {
+                addView(accentStrip(group.episodes.firstOrNull()?.accent ?: color("accent")), LinearLayout.LayoutParams(dp(5), ViewGroup.LayoutParams.MATCH_PARENT).withRightMargin(dp(12)))
+                addView(
+                    stackedText(
+                        title = group.title,
+                        subtitle = getString(R.string.series_group_subtitle),
+                        meta = episodeCountText(group.episodes.size),
+                    ),
+                    LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f),
+                )
+            }
+            channelRows[group.id] = row
+            channelList.addView(row, rowParams(dp(76)))
+        }
+    }
+
     private fun renderProgrammes() {
         programmeRows.clear()
         programmeList.removeAllViews()
 
-        val programmes = catalog.programmesFor(selectedDayId, selectedChannelId)
+        val programmes = activeProgrammes()
         if (programmes.isEmpty()) {
-            programmeList.addView(emptyText(getString(R.string.no_programmes)))
+            selectedProgrammeId = null
+            programmeList.addView(emptyText(emptyProgrammeMessage()))
             return
         }
 
@@ -294,7 +430,7 @@ class MainActivity : Activity() {
                 addView(
                     stackedText(
                         title = programme.title,
-                        subtitle = "${programme.start}-${programme.end} · ${programme.subtitle.ifBlank { programme.kind }}",
+                        subtitle = programmeSubtitle(programme),
                         meta = programmeMeta(programme),
                     ),
                     LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.MATCH_PARENT, 1f),
@@ -387,24 +523,26 @@ class MainActivity : Activity() {
     }
 
     private fun wireFocusNavigation() {
-        val selectedDay = dayRows[selectedDayId]
-        val selectedChannel = channelRows[selectedChannelId]
+        val selectedBrowse = dayRows[selectedFirstRailId()]
+        val selectedGroup = selectedSecondRailId()?.let { channelRows[it] }
         val selectedProgramme = selectedProgrammeId?.let { programmeRows[it] }
+        val rightOfBrowse = selectedGroup ?: selectedProgramme
+        val leftOfProgramme = selectedGroup ?: selectedBrowse
         val watch = watchAction
 
         dayRows.values.forEach { row ->
-            row.nextFocusRightId = selectedChannel?.id ?: View.NO_ID
-            row.setHorizontalFocusTargets(left = null, right = selectedChannel)
+            row.nextFocusRightId = rightOfBrowse?.id ?: View.NO_ID
+            row.setHorizontalFocusTargets(left = null, right = rightOfBrowse)
         }
         channelRows.values.forEach { row ->
-            row.nextFocusLeftId = selectedDay?.id ?: View.NO_ID
+            row.nextFocusLeftId = selectedBrowse?.id ?: View.NO_ID
             row.nextFocusRightId = selectedProgramme?.id ?: View.NO_ID
-            row.setHorizontalFocusTargets(left = selectedDay, right = selectedProgramme)
+            row.setHorizontalFocusTargets(left = selectedBrowse, right = selectedProgramme)
         }
         programmeRows.values.forEach { row ->
-            row.nextFocusLeftId = selectedChannel?.id ?: View.NO_ID
+            row.nextFocusLeftId = leftOfProgramme?.id ?: View.NO_ID
             row.nextFocusRightId = watch?.id ?: View.NO_ID
-            row.setHorizontalFocusTargets(left = selectedChannel, right = watch)
+            row.setHorizontalFocusTargets(left = leftOfProgramme, right = watch)
         }
         watch?.nextFocusLeftId = selectedProgramme?.id ?: View.NO_ID
         watch?.setHorizontalFocusTargets(left = selectedProgramme, right = null)
@@ -424,6 +562,7 @@ class MainActivity : Activity() {
     }
 
     private fun selectDay(dayId: String) {
+        browseMode = BrowseMode.Schedule
         selectedDayId = dayId
         if (catalog.programmesFor(selectedDayId, selectedChannelId).isEmpty()) {
             selectedChannelId = firstChannelForDay(selectedDayId) ?: selectedChannelId
@@ -432,10 +571,37 @@ class MainActivity : Activity() {
         renderAll(FocusTarget.Day(dayId))
     }
 
+    private fun selectMovies() {
+        browseMode = BrowseMode.Movies
+        selectedProgrammeId = firstProgrammeForSelection()?.id
+        renderAll(FocusTarget.Day(BROWSE_MOVIES_ID))
+    }
+
+    private fun selectSeries() {
+        browseMode = BrowseMode.Series
+        val groups = catalog.seriesGroups()
+        val preferredGroupId = selectedProgramme()?.takeIf { it.isSeries }?.seriesGroupId
+        selectedSeriesGroupId = groups.firstOrNull { it.id == preferredGroupId }?.id
+            ?: groups.firstOrNull()?.id.orEmpty()
+        selectedProgrammeId = firstProgrammeForSelection()?.id
+        renderAll(FocusTarget.Day(BROWSE_SERIES_ID))
+    }
+
     private fun selectChannel(channelId: String) {
         selectedChannelId = channelId
         selectedProgrammeId = firstProgrammeForSelection()?.id
         renderAll(FocusTarget.Channel(channelId))
+    }
+
+    private fun selectMovieGroup() {
+        selectedProgrammeId = firstProgrammeForSelection()?.id
+        renderAll(FocusTarget.Channel(MOVIES_GROUP_ID))
+    }
+
+    private fun selectSeriesGroup(seriesGroupId: String) {
+        selectedSeriesGroupId = seriesGroupId
+        selectedProgrammeId = firstProgrammeForSelection()?.id
+        renderAll(FocusTarget.Channel(seriesGroupId))
     }
 
     private fun selectProgramme(programmeId: String) {
@@ -445,8 +611,13 @@ class MainActivity : Activity() {
 
     private fun jumpToProgramme(programmeId: String) {
         val programme = catalog.programme(programmeId) ?: return
-        selectedDayId = programme.dayId
-        selectedChannelId = programme.channelId
+        if (browseMode == BrowseMode.Series && programme.isSeries) {
+            selectedSeriesGroupId = programme.seriesGroupId
+        } else {
+            browseMode = BrowseMode.Schedule
+            selectedDayId = programme.dayId
+            selectedChannelId = programme.channelId
+        }
         selectedProgrammeId = programme.id
         renderAll(FocusTarget.Programme(programme.id))
     }
@@ -455,16 +626,70 @@ class MainActivity : Activity() {
         catalog.channels.firstOrNull { catalog.programmesFor(dayId, it.id).isNotEmpty() }?.id
 
     private fun firstProgrammeForSelection(): CatchupProgramme? =
-        catalog.programmesFor(selectedDayId, selectedChannelId).firstOrNull()
+        activeProgrammes().firstOrNull()
+
+    private fun activeProgrammes(): List<CatchupProgramme> =
+        when (browseMode) {
+            BrowseMode.Schedule -> catalog.programmesFor(selectedDayId, selectedChannelId)
+            BrowseMode.Movies -> catalog.movieProgrammes()
+            BrowseMode.Series -> catalog.episodesForSeries(selectedSeriesGroupId)
+        }
+
+    private fun emptyProgrammeMessage(): String =
+        when (browseMode) {
+            BrowseMode.Schedule -> getString(R.string.no_programmes)
+            BrowseMode.Movies -> getString(R.string.no_movies)
+            BrowseMode.Series -> getString(R.string.no_series)
+        }
 
     private fun selectedProgramme(): CatchupProgramme? =
         catalog.programme(selectedProgrammeId)
+
+    private fun selectedFirstRailId(): String =
+        when (browseMode) {
+            BrowseMode.Schedule -> selectedDayId
+            BrowseMode.Movies -> BROWSE_MOVIES_ID
+            BrowseMode.Series -> BROWSE_SERIES_ID
+        }
+
+    private fun selectedSecondRailId(): String? =
+        when (browseMode) {
+            BrowseMode.Schedule -> selectedChannelId.takeIf { it.isNotBlank() }
+            BrowseMode.Movies -> MOVIES_GROUP_ID
+            BrowseMode.Series -> selectedSeriesGroupId.takeIf { it.isNotBlank() }
+        }
+
+    private fun programmeSubtitle(programme: CatchupProgramme): String {
+        val kindLabel = programme.subtitle.ifBlank { displayKind(programme.kind) }
+        val base = "${programme.start}-${programme.end} · $kindLabel"
+        if (browseMode == BrowseMode.Schedule) {
+            return base
+        }
+        val channel = catalog.channel(programme.channelId)?.name
+        val day = catalog.days.firstOrNull { it.id == programme.dayId }?.label
+        return listOfNotNull(
+            channel,
+            day,
+            base,
+        ).joinToString(" · ")
+    }
 
     private fun programmeCountForDay(dayId: String): Int =
         catalog.programmes.count { it.dayId == dayId }
 
     private fun programmeCountText(count: Int): String =
-        if (count == 1) "1 prog." else "$count prog."
+        if (count == 1) {
+            getString(R.string.programme_count_one)
+        } else {
+            getString(R.string.programme_count_many, count)
+        }
+
+    private fun episodeCountText(count: Int): String =
+        if (count == 1) {
+            getString(R.string.episode_count_one)
+        } else {
+            getString(R.string.episode_count_many, count)
+        }
 
     private fun programmeMeta(programme: CatchupProgramme): String =
         listOfNotNull(
@@ -780,6 +1005,12 @@ class MainActivity : Activity() {
     private fun dp(value: Int): Int =
         (value * resources.displayMetrics.density).roundToInt()
 
+    private enum class BrowseMode {
+        Schedule,
+        Movies,
+        Series,
+    }
+
     private sealed class FocusTarget {
         data class Day(val id: String) : FocusTarget()
         data class Channel(val id: String) : FocusTarget()
@@ -790,6 +1021,12 @@ class MainActivity : Activity() {
         private const val TARGET_PACKAGE = "ro.digionline.tv"
         private const val TARGET_SCHEME = "digitv"
         private const val LOG_TAG = "RebobinaHandoff"
+        private const val BROWSE_MOVIES_ID = "browse:movies"
+        private const val BROWSE_SERIES_ID = "browse:series"
+        private const val MOVIES_GROUP_ID = "group:movies:all"
+        private const val SHORTCUT_FLASHBACK_ID = "shortcut:flashback"
+        private const val SHORTCUT_GUIDE_ID = "shortcut:guide"
+        private const val SHORTCUT_SEARCH_ID = "shortcut:search"
         private val ALLOWED_ROUTE_ROOTS = setOf(
             "catchup",
             "catchupstream",

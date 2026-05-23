@@ -33,14 +33,14 @@ or stream URLs.
 | `app/src/main/AndroidManifest.xml` | 37 | Android TV launcher and app declaration. |
 | `app/src/main/assets/sample-catchup.json` | 220 | Safe local catch-up catalog fixture. |
 | `app/src/main/assets/sample-provider-metadata.json` | 172 | Synthetic provider-shaped metadata fixture. |
-| `app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt` | 141 | Normalized catalog models, fixture source, and JSON parser. |
-| `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 815 | Android TV gallery UI, focus routing, and provider handoff. |
+| `app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt` | 192 | Normalized catalog models, fixture source, and JSON parser. |
+| `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 1052 | Android TV gallery UI, focus routing, and provider handoff. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt` | 224 | Synthetic provider metadata source and normalizer proof. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderRoutes.kt` | 43 | Provider deep-link route composition helpers. |
 | `app/src/main/res/drawable/ic_launcher.xml` | 16 | Launcher icon and TV banner resources. |
 | `app/src/main/res/drawable/tv_banner.xml` | 22 | Launcher icon and TV banner resources. |
-| `app/src/main/res/values-pt/strings.xml` | 57 | Portuguese UI strings. |
-| `app/src/main/res/values/strings.xml` | 56 | Default UI strings. |
+| `app/src/main/res/values-pt/strings.xml` | 73 | Portuguese UI strings. |
+| `app/src/main/res/values/strings.xml` | 72 | Default UI strings. |
 | `app/src/main/res/values/styles.xml` | 8 | Android style declarations. |
 
 ## Local Harness Scripts
@@ -66,7 +66,7 @@ or stream URLs.
 | `docs/design-docs/core-beliefs.md` | 28 | Design principles and harness-engineering notes. |
 | `docs/design-docs/harness-engineering.md` | 42 | Design principles and harness-engineering notes. |
 | `docs/design-docs/index.md` | 9 | Design principles and harness-engineering notes. |
-| `docs/exec-plans/active/family-catchup-ux-harness.md` | 154 | In-progress execution plans. |
+| `docs/exec-plans/active/family-catchup-ux-harness.md` | 156 | In-progress execution plans. |
 | `docs/exec-plans/active/metadata-adapter-proof.md` | 56 | In-progress execution plans. |
 | `docs/exec-plans/active/README.md` | 7 | In-progress execution plans. |
 | `docs/exec-plans/completed/2026-05-17-device-evidence-harness.md` | 68 | Completed decision logs. |
@@ -77,7 +77,7 @@ or stream URLs.
 | `docs/generated/README.md` | 13 | Rules for generated documentation. |
 | `docs/index.md` | 47 | Repository knowledge-base index. |
 | `docs/legal-publication-notes.md` | 153 | Repository support file. |
-| `docs/product-specs/catch-up-handoff-gallery.md` | 96 | Product specs, adapter boundary, and provider evidence. |
+| `docs/product-specs/catch-up-handoff-gallery.md` | 100 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/index.md` | 16 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/metadata-adapter-boundary.md` | 152 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json` | 80 | Product specs, adapter boundary, and provider evidence. |

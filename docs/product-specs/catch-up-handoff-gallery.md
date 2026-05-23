@@ -21,7 +21,10 @@ data, raw streams, or playback replacement in Rebobina.
 
 The current prototype is fixture-backed. It proves the TV interaction model
 without storing provider account data, playback URLs, or private backend
-artifacts.
+artifacts. The first rail now includes explicit discovery entries for films and
+series before the normal day list: **Filmes** opens an all-film programme list,
+and **Séries** opens show groups in the second rail with every fixture episode
+for the selected show visible in the programme rail.
 
 ## In Scope
 
@@ -48,7 +51,8 @@ artifacts.
 - A user can browse safe local catch-up metadata by day, channel, and programme
   from Android TV.
 - Series details expose previous and next episode navigation when those
-  neighbours are present in the metadata.
+  neighbours are present in the metadata, and the series discovery path lists
+  every available fixture episode for the selected show in the programme rail.
 - Movie programmes can be discovered without scanning every channel/day row once
   the metadata marks them as `kind: movie`.
 - The primary Watch action opens the official provider app through a

@@ -18,6 +18,37 @@ data class CatchupCatalog(
 
     fun channel(id: String): CatchupChannel? =
         channels.firstOrNull { it.id == id }
+
+    fun movieProgrammes(): List<CatchupProgramme> =
+        programmes
+            .filter { it.kind == "movie" }
+            .sortedWith(
+                compareBy<CatchupProgramme> { it.title.lowercase() }
+                    .thenByDescending { it.dayId }
+                    .thenBy { it.start },
+            )
+
+    fun seriesGroups(): List<CatchupSeriesGroup> =
+        programmes
+            .filter { it.isSeries }
+            .groupBy { it.seriesGroupId }
+            .mapNotNull { (id, episodes) ->
+                val sortedEpisodes = episodes.sortedForSeriesBrowsing()
+                val title = sortedEpisodes.firstOrNull()?.seriesDisplayTitle.orEmpty()
+                if (title.isBlank()) {
+                    null
+                } else {
+                    CatchupSeriesGroup(
+                        id = id,
+                        title = title,
+                        episodes = sortedEpisodes,
+                    )
+                }
+            }
+            .sortedWith(compareBy<CatchupSeriesGroup> { it.title.lowercase() })
+
+    fun episodesForSeries(seriesGroupId: String): List<CatchupProgramme> =
+        seriesGroups().firstOrNull { it.id == seriesGroupId }?.episodes.orEmpty()
 }
 
 data class CatchupDay(
@@ -54,7 +85,13 @@ data class CatchupProgramme(
     val accent: Int,
 ) {
     val isSeries: Boolean
-        get() = season != null || episode != null || seriesTitle.isNotBlank()
+        get() = kind == "series" || season != null || episode != null || seriesTitle.isNotBlank()
+
+    val seriesDisplayTitle: String
+        get() = seriesTitle.ifBlank { title }
+
+    val seriesGroupId: String
+        get() = seriesDisplayTitle.trim().lowercase()
 
     val episodeLabel: String
         get() = listOfNotNull(
@@ -62,6 +99,12 @@ data class CatchupProgramme(
             episode?.let { "E$it" },
         ).joinToString(" ")
 }
+
+data class CatchupSeriesGroup(
+    val id: String,
+    val title: String,
+    val episodes: List<CatchupProgramme>,
+)
 
 interface CatchupCatalogSource {
     val sourceName: String
@@ -139,3 +182,11 @@ private fun org.json.JSONArray.objects(): List<JSONObject> =
 
 private fun JSONObject.optNullableInt(name: String): Int? =
     if (has(name) && !isNull(name)) optInt(name) else null
+
+private fun List<CatchupProgramme>.sortedForSeriesBrowsing(): List<CatchupProgramme> =
+    sortedWith(
+        compareBy<CatchupProgramme> { it.season ?: Int.MAX_VALUE }
+            .thenBy { it.episode ?: Int.MAX_VALUE }
+            .thenByDescending { it.dayId }
+            .thenBy { it.start },
+    )

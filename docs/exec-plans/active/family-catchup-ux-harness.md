@@ -14,7 +14,7 @@
 
 - `README.md` already states the core goal: day, channel, programme rails; progress; previous/next episode navigation; official app handoff.
 - `docs/product-specs/catch-up-handoff-gallery.md` now names the north star: closer to MEO/Vodafone-style Portuguese catch-up UX for a non-technical sofa viewer.
-- `MainActivity.kt` currently renders day, channel, programme, and detail panes, including progress, previous/next episode buttons for series, and Watch handoff.
+- `MainActivity.kt` currently renders a browse rail with day schedule, movie discovery, and series discovery entries; channel/show group and programme rails; detail panes with progress; previous/next episode buttons for series; and Watch handoff.
 - `sample-catchup.json` includes movie, sport, news, and series fixture items with a synthetic E18/E19/E20-style neighbor proof.
 - `ProviderMetadataSnapshotSource` proves a safe provider-shaped metadata parser into the same `CatchupCatalog` model, but the app still defaults to the local fixture.
 - Provider evidence verifies broad official routes: `digitv://u7d`, `digitv://catchup`, `digitv://epg`, `digitv://search`, plus route-handler-only evidence for `content`, `livestream`, and `catchupstream`.
@@ -43,6 +43,8 @@ This plan follows the OpenAI harness-engineering pattern:
 ## Phase 1: Product Shape And Fixture Gallery
 
 **Objective:** Make the fixture-backed gallery express the target UX before touching real provider metadata.
+
+**Status:** Implemented on 2026-05-23 for the local fixture: the first rail now exposes **Filmes** and **Séries** discovery entries, films render as an all-movie programme list, and series render show groups with every available fixture episode visible in the programme rail.
 
 **Files:**
 - Modify: `app/src/main/assets/sample-catchup.json`
