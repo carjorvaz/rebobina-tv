@@ -1,0 +1,117 @@
+{
+  "generatedFor": "Rebobina normalized synthetic provider catalog",
+  "sourceGeneratedFor": "Rebobina synthetic provider metadata fixture",
+  "days": [
+    {
+      "id": "2026-05-17",
+      "label": "Hoje",
+      "subtitle": "17 Maio"
+    },
+    {
+      "id": "2026-05-16",
+      "label": "Ontem",
+      "subtitle": "16 Maio"
+    },
+    {
+      "id": "2026-05-15",
+      "label": "Sexta",
+      "subtitle": "15 Maio"
+    }
+  ],
+  "channels": [
+    {
+      "id": "rtp1",
+      "name": "RTP 1",
+      "number": 1,
+      "badge": "R1"
+    },
+    {
+      "id": "sic",
+      "name": "SIC",
+      "number": 3,
+      "badge": "S"
+    }
+  ],
+  "programmes": [
+    {
+      "id": "provider-rtp1-evt-rtp1-1505",
+      "dayId": "2026-05-17",
+      "channelId": "rtp1",
+      "start": "15:05",
+      "end": "17:07",
+      "title": "O Diabo Veste Prada",
+      "subtitle": "Filme",
+      "kind": "movie",
+      "seriesTitle": "",
+      "season": null,
+      "episode": null,
+      "description": "Uma assistente recem-chegada a Nova Iorque descobre o preco de trabalhar para uma editora exigente.",
+      "progressPercent": 0,
+      "previousProgrammeId": "",
+      "nextProgrammeId": "",
+      "providerRoute": "digitv://u7d",
+      "candidateProviderRoute": "digitv://catchupstream/epg-20260517-rtp1-1505/evt-rtp1-1505/O%20Diabo%20Veste%20Prada/rtp1-logo",
+      "accent": "#5E7CE2"
+    },
+    {
+      "id": "provider-sic-evt-sic-domingao-1719",
+      "dayId": "2026-05-17",
+      "channelId": "sic",
+      "start": "15:00",
+      "end": "20:00",
+      "title": "Domingao",
+      "subtitle": "Entretenimento",
+      "kind": "series",
+      "seriesTitle": "Domingao",
+      "season": 17,
+      "episode": 19,
+      "description": "Musica popular, convidados e reportagem em direto de varias zonas do pais.",
+      "progressPercent": 34,
+      "previousProgrammeId": "provider-sic-evt-sic-domingao-1718",
+      "nextProgrammeId": "provider-sic-evt-sic-domingao-1720",
+      "providerRoute": "digitv://u7d",
+      "candidateProviderRoute": "digitv://catchupstream/epg-20260517-sic-1500/evt-sic-domingao-1719/Domingao/sic-logo",
+      "accent": "#F2994A"
+    },
+    {
+      "id": "provider-sic-evt-sic-domingao-1718",
+      "dayId": "2026-05-16",
+      "channelId": "sic",
+      "start": "15:00",
+      "end": "20:00",
+      "title": "Domingao",
+      "subtitle": "Serie",
+      "kind": "series",
+      "seriesTitle": "Domingao",
+      "season": 17,
+      "episode": 18,
+      "description": "Episodio anterior do mesmo programa.",
+      "progressPercent": 100,
+      "previousProgrammeId": "",
+      "nextProgrammeId": "provider-sic-evt-sic-domingao-1719",
+      "providerRoute": "digitv://u7d",
+      "candidateProviderRoute": "digitv://catchupstream/epg-20260516-sic-1500/evt-sic-domingao-1718/Domingao/sic-logo",
+      "accent": "#F2994A"
+    },
+    {
+      "id": "provider-sic-evt-sic-domingao-1720",
+      "dayId": "2026-05-15",
+      "channelId": "sic",
+      "start": "15:00",
+      "end": "20:00",
+      "title": "Domingao",
+      "subtitle": "Serie",
+      "kind": "series",
+      "seriesTitle": "Domingao",
+      "season": 17,
+      "episode": 20,
+      "description": "Outro episodio disponivel no arquivo de catch-up.",
+      "progressPercent": 0,
+      "previousProgrammeId": "provider-sic-evt-sic-domingao-1719",
+      "nextProgrammeId": "",
+      "providerRoute": "digitv://u7d",
+      "candidateProviderRoute": "digitv://catchupstream/epg-20260515-sic-1500/evt-sic-domingao-1720/Domingao/sic-logo",
+      "accent": "#F2994A"
+    }
+  ]
+}

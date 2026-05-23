@@ -1,0 +1,96 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/compare-redacted-shapes BASELINE_SHAPE CANDIDATE_SHAPE [OUTPUT_JSON]
+
+Compares two outputs from scripts/redact-json-shape. The comparison reports
+shape paths and scalar type differences only; it never needs the raw provider
+response.
+
+Use the synthetic provider metadata shape as BASELINE_SHAPE and a redacted
+live/session shape as CANDIDATE_SHAPE to see which expected metadata paths are
+present, missing, or differently typed.
+USAGE
+}
+
+fail() {
+  echo "compare-redacted-shapes: $*" >&2
+  exit 1
+}
+
+[[ $# -ge 2 && $# -le 3 ]] || {
+  usage >&2
+  exit 1
+}
+
+baseline_shape="$1"
+candidate_shape="$2"
+output_json="${3:-}"
+
+command -v jq >/dev/null 2>&1 || fail "jq is not available"
+[[ -f "${baseline_shape}" ]] || fail "missing baseline shape: ${baseline_shape}"
+[[ -f "${candidate_shape}" ]] || fail "missing candidate shape: ${candidate_shape}"
+
+filter='
+def paths_for($name): [.[$name][]?.path] | unique | sort;
+def scalar_types:
+  [.scalars[]? | { key: .path, value: (.types | sort) }] | from_entries;
+
+.[0] as $baseline |
+.[1] as $candidate |
+($baseline | paths_for("arrays")) as $baselineArrays |
+ ($candidate | paths_for("arrays")) as $candidateArrays |
+ ($baseline | paths_for("objectFields")) as $baselineObjects |
+ ($candidate | paths_for("objectFields")) as $candidateObjects |
+ ($baseline | paths_for("scalars")) as $baselineScalars |
+ ($candidate | paths_for("scalars")) as $candidateScalars |
+ ($baseline | scalar_types) as $baselineScalarTypes |
+ ($candidate | scalar_types) as $candidateScalarTypes |
+ {
+   generatedFor: "Rebobina redacted metadata shape comparison",
+   baselineGeneratedFor: $baseline.generatedFor,
+   candidateGeneratedFor: $candidate.generatedFor,
+   arrays: {
+     expected: $baselineArrays,
+     candidate: $candidateArrays,
+     missingFromCandidate: ($baselineArrays - $candidateArrays),
+     extraInCandidate: ($candidateArrays - $baselineArrays)
+   },
+   objectFields: {
+     expected: $baselineObjects,
+     candidate: $candidateObjects,
+     missingFromCandidate: ($baselineObjects - $candidateObjects),
+     extraInCandidate: ($candidateObjects - $baselineObjects)
+   },
+   scalars: {
+     expected: $baselineScalars,
+     candidate: $candidateScalars,
+     missingFromCandidate: ($baselineScalars - $candidateScalars),
+     extraInCandidate: ($candidateScalars - $baselineScalars),
+     typeMismatches: (
+       $baselineScalars
+       | map(select(($candidateScalars | index(.)) != null))
+       | map({
+           path: .,
+           expectedTypes: $baselineScalarTypes[.],
+           candidateTypes: $candidateScalarTypes[.]
+         })
+       | map(select(.expectedTypes != .candidateTypes))
+     )
+   }
+ } |
+ .compatible = (
+   (.arrays.missingFromCandidate | length) == 0 and
+   (.objectFields.missingFromCandidate | length) == 0 and
+   (.scalars.missingFromCandidate | length) == 0 and
+   (.scalars.typeMismatches | length) == 0
+ )
+'
+
+if [[ -n "${output_json}" ]]; then
+  jq -s "${filter}" "${baseline_shape}" "${candidate_shape}" > "${output_json}"
+else
+  jq -s "${filter}" "${baseline_shape}" "${candidate_shape}"
+fi

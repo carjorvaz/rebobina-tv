@@ -1,0 +1,172 @@
+{
+  "generatedFor": "Rebobina synthetic provider metadata fixture",
+  "notes": "Synthetic metadata-only shape. No tokens, account identifiers, raw responses, playback URLs, or DRM fields.",
+  "sourceShapes": [
+    "catchup/byDate",
+    "epg/events",
+    "epg-events"
+  ],
+  "dates": [
+    {
+      "date": "2026-05-17",
+      "label": "Hoje",
+      "subtitle": "17 Maio",
+      "channels": [
+        {
+          "common_id": "rtp1",
+          "name": "RTP 1",
+          "number": 1,
+          "events": [
+            {
+              "id": "evt-rtp1-1505",
+              "common_id": "rtp1",
+              "start_time": "2026-05-17T15:05:00+01:00",
+              "end_time": "2026-05-17T17:07:00+01:00",
+              "title": "O Diabo Veste Prada",
+              "category": "movie",
+              "labels": [
+                "Filme"
+              ],
+              "description": "Uma assistente recem-chegada a Nova Iorque descobre o preco de trabalhar para uma editora exigente.",
+              "routeFields": {
+                "catchupstream": {
+                  "epgItem": "epg-20260517-rtp1-1505",
+                  "id": "evt-rtp1-1505",
+                  "name": "O Diabo Veste Prada",
+                  "logo": "rtp1-logo"
+                }
+              },
+              "watchInfo": {
+                "progress": 0,
+                "duration": 122
+              }
+            }
+          ]
+        },
+        {
+          "common_id": "sic",
+          "name": "SIC",
+          "number": 3,
+          "events": [
+            {
+              "id": "evt-sic-domingao-1719",
+              "common_id": "sic",
+              "start_time": "2026-05-17T15:00:00+01:00",
+              "end_time": "2026-05-17T20:00:00+01:00",
+              "title": "Domingao",
+              "category": "series",
+              "seriesTitle": "Domingao",
+              "seasonLabel": "T17",
+              "episodeLabel": "E19",
+              "labels": [
+                "Entretenimento"
+              ],
+              "description": "Musica popular, convidados e reportagem em direto de varias zonas do pais.",
+              "routeFields": {
+                "catchupstream": {
+                  "epgItem": "epg-20260517-sic-1500",
+                  "id": "evt-sic-domingao-1719",
+                  "name": "Domingao",
+                  "logo": "sic-logo"
+                }
+              },
+              "watchInfo": {
+                "progress": 34,
+                "duration": 300
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-05-16",
+      "label": "Ontem",
+      "subtitle": "16 Maio",
+      "channels": [
+        {
+          "common_id": "sic",
+          "name": "SIC",
+          "number": 3,
+          "events": [
+            {
+              "id": "evt-sic-domingao-1718",
+              "common_id": "sic",
+              "start_time": "2026-05-16T15:00:00+01:00",
+              "end_time": "2026-05-16T20:00:00+01:00",
+              "title": "Domingao",
+              "category": "series",
+              "seriesTitle": "Domingao",
+              "seasonLabel": "T17",
+              "episodeLabel": "E18",
+              "description": "Episodio anterior do mesmo programa.",
+              "routeFields": {
+                "catchupstream": {
+                  "epgItem": "epg-20260516-sic-1500",
+                  "id": "evt-sic-domingao-1718",
+                  "name": "Domingao",
+                  "logo": "sic-logo"
+                }
+              },
+              "watchInfo": {
+                "progress": 100,
+                "duration": 300
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "date": "2026-05-15",
+      "label": "Sexta",
+      "subtitle": "15 Maio",
+      "channels": [
+        {
+          "common_id": "sic",
+          "name": "SIC",
+          "number": 3,
+          "events": [
+            {
+              "id": "evt-sic-domingao-1720",
+              "common_id": "sic",
+              "start_time": "2026-05-15T15:00:00+01:00",
+              "end_time": "2026-05-15T20:00:00+01:00",
+              "title": "Domingao",
+              "category": "series",
+              "seriesTitle": "Domingao",
+              "seasonLabel": "T17",
+              "episodeLabel": "E20",
+              "description": "Outro episodio disponivel no arquivo de catch-up.",
+              "routeFields": {
+                "catchupstream": {
+                  "epgItem": "epg-20260515-sic-1500",
+                  "id": "evt-sic-domingao-1720",
+                  "name": "Domingao",
+                  "logo": "sic-logo"
+                }
+              },
+              "watchInfo": {
+                "progress": 0,
+                "duration": 300
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "eventDetails": [
+    {
+      "id": "evt-sic-domingao-1719",
+      "common_id": "sic",
+      "seasonLabel": "T17",
+      "episodeLabel": "E19",
+      "available_start": "2026-05-17T20:00:00+01:00",
+      "available_end": "2026-05-24T20:00:00+01:00",
+      "watchInfo": {
+        "progress": 34
+      }
+    }
+  ]
+}

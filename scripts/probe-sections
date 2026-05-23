@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+probes=(
+  "home|digitv://"
+  "catchup|digitv://catchup"
+  "u7d|digitv://u7d"
+  "epg|digitv://epg"
+  "search|digitv://search"
+)
+
+for probe in "${probes[@]}"; do
+  label="${probe%%|*}"
+  route="${probe#*|}"
+  echo "probe-sections: ${label} ${route}"
+  "${repo_root}/scripts/probe-route" "$route" "$label"
+  sleep 1
+done

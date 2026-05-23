@@ -1,0 +1,150 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/check-doc-refs
+
+Checks repo-local documentation references:
+- Markdown links to local files/directories must resolve.
+- Inline backticked repo paths such as `scripts/validate`, `docs/index.md`,
+  and `app/src/main/assets/sample-catchup.json` must exist.
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+if [[ $# -ne 0 ]]; then
+  usage >&2
+  exit 1
+fi
+
+failures=0
+
+report_missing() {
+  local file="$1"
+  local line="$2"
+  local label="$3"
+  local ref="$4"
+
+  printf 'check-doc-refs: %s:%s: missing %s: %s\n' \
+    "${file}" "${line}" "${label}" "${ref}" >&2
+  failures=1
+}
+
+strip_trailing_punctuation() {
+  local value="$1"
+  value="${value%,}"
+  value="${value%;}"
+  value="${value%:}"
+  value="${value%.}"
+  printf '%s\n' "${value}"
+}
+
+is_external_ref() {
+  case "$1" in
+    ""|"#"*|http://*|https://*|mailto:*|tel:*|digitv://*)
+      return 0
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}
+
+check_markdown_links() {
+  local file="$1"
+  local line ref target base candidate
+
+  while IFS=$'\t' read -r line ref; do
+    ref="${ref#<}"
+    ref="${ref%>}"
+    is_external_ref "${ref}" && continue
+
+    target="${ref%%#*}"
+    [[ -z "${target}" ]] && continue
+
+    base="$(dirname "${file}")"
+    if [[ "${base}" == "." ]]; then
+      candidate="${repo_root}/${target}"
+    else
+      candidate="${repo_root}/${base}/${target}"
+    fi
+
+    [[ -e "${candidate}" ]] || report_missing "${file}" "${line}" "local markdown link" "${ref}"
+  done < <(
+    awk '
+      {
+        line = $0
+        while (match(line, /\[[^][]*\]\([^)]*\)/)) {
+          link = substr(line, RSTART, RLENGTH)
+          sub(/^[^)]*\(/, "", link)
+          sub(/\)$/, "", link)
+          print FNR "\t" link
+          line = substr(line, RSTART + RLENGTH)
+        }
+      }
+    ' "${repo_root}/${file}"
+  )
+}
+
+check_inline_repo_paths() {
+  local file="$1"
+  local line code ref candidate
+
+  while IFS=$'\t' read -r line code; do
+    ref="$(printf '%s\n' "${code}" | awk '{ print $1 }')"
+    ref="$(strip_trailing_punctuation "${ref}")"
+
+    case "${ref}" in
+      scripts/*|docs/*|app/*|AGENTS.md|ARCHITECTURE.md|README.md)
+        candidate="${repo_root}/${ref}"
+        ;;
+      *)
+        continue
+        ;;
+    esac
+
+    if [[ "${ref}" == scripts/* && -f "${candidate}" && ! -x "${candidate}" ]]; then
+      report_missing "${file}" "${line}" "executable documented script" "${ref}"
+    elif [[ ! -e "${candidate}" ]]; then
+      report_missing "${file}" "${line}" "documented repo path" "${ref}"
+    fi
+  done < <(
+    awk '
+      {
+        line = $0
+        while (match(line, /`[^`]+`/)) {
+          code = substr(line, RSTART + 1, RLENGTH - 2)
+          print FNR "\t" code
+          line = substr(line, RSTART + RLENGTH)
+        }
+      }
+    ' "${repo_root}/${file}"
+  )
+}
+
+check_file() {
+  local file="$1"
+  check_markdown_links "${file}"
+  check_inline_repo_paths "${file}"
+}
+
+check_file "README.md"
+check_file "AGENTS.md"
+check_file "ARCHITECTURE.md"
+
+while IFS= read -r path; do
+  check_file "${path#${repo_root}/}"
+done < <(find "${repo_root}/docs" -type f -name "*.md" | sort)
+
+if [[ "${failures}" -ne 0 ]]; then
+  exit 1
+fi
+
+echo "check-doc-refs: ok"

@@ -1,0 +1,318 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+app_id="com.carjorvaz.rebobina"
+target_package="ro.digionline.tv"
+route="digitv://catchup"
+ui_route="digitv://u7d"
+app_expect_texts=("Rebobina" "O Diabo Veste Prada" "Ver")
+ui_expect_texts=("FLASHBACK")
+ui_keyevents=(22 22 22 22 23)
+adb_serial="${ANDROID_SERIAL:-${ADB_SERIAL:-}}"
+run_build=1
+ui_smoke=1
+probe_route=1
+capture_dir=""
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/smoke-device [--serial SERIAL] [--skip-build] [--app-expect-text TEXT] [--no-app-text-assert] [--ui-route ROUTE] [--ui-keyevent KEYCODE] [--ui-expect-text TEXT] [--no-ui-text-assert] [--no-ui-smoke] [--route ROUTE] [--no-route-probe] [--capture-dir DIR]
+
+Builds and installs the debug APK, opens Rebobina on the connected Android TV
+device, drives the TV focus path into the Watch action, optionally probes a
+provider route directly, and writes local evidence under captures/.
+
+Captured screenshots and logs may include account UI. Keep captures/ ignored.
+USAGE
+}
+
+fail() {
+  echo "smoke-device: $*" >&2
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    "--serial")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--serial requires a device serial"
+      adb_serial="$1"
+      ;;
+    "--skip-build")
+      run_build=0
+      ;;
+    "--route")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--route requires a route"
+      route="$1"
+      ;;
+    "--ui-route")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--ui-route requires a route"
+      ui_route="$1"
+      ;;
+    "--ui-keyevent")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--ui-keyevent requires a keycode"
+      ui_keyevents+=("$1")
+      ;;
+    "--clear-ui-keyevents")
+      ui_keyevents=()
+      ;;
+    "--app-expect-text")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--app-expect-text requires text"
+      app_expect_texts+=("$1")
+      ;;
+    "--no-app-text-assert")
+      app_expect_texts=()
+      ;;
+    "--ui-expect-text")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--ui-expect-text requires text"
+      ui_expect_texts+=("$1")
+      ;;
+    "--no-ui-text-assert")
+      ui_expect_texts=()
+      ;;
+    "--no-ui-smoke")
+      ui_smoke=0
+      ;;
+    "--no-route-probe")
+      probe_route=0
+      ;;
+    "--capture-dir")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--capture-dir requires a directory"
+      capture_dir="$1"
+      ;;
+    "-h"|"--help")
+      usage
+      exit 0
+      ;;
+    *)
+      usage >&2
+      fail "unknown argument: $1"
+      ;;
+  esac
+  shift
+done
+
+command -v adb >/dev/null 2>&1 || fail "adb is not available"
+
+if [[ -z "${adb_serial}" ]]; then
+  if ! devices_output="$(adb devices 2>&1)"; then
+    fail "adb devices failed: ${devices_output}"
+  fi
+  connected_devices="$(printf '%s\n' "${devices_output}" | awk '$2 == "device" { print $1 }')"
+  device_count="$(printf '%s\n' "${connected_devices}" | sed '/^$/d' | wc -l | tr -d ' ')"
+  case "${device_count}" in
+    "0")
+      fail "no adb device in device state"
+      ;;
+    "1")
+      adb_serial="${connected_devices}"
+      ;;
+    *)
+      fail "multiple adb devices found; pass --serial"
+      ;;
+  esac
+fi
+
+adb_cmd=(adb -s "${adb_serial}")
+
+if ! adb_state="$("${adb_cmd[@]}" get-state 2>&1)"; then
+  fail "adb get-state failed for ${adb_serial}: ${adb_state}"
+fi
+[[ "${adb_state}" == "device" ]] || fail "adb device ${adb_serial} state is ${adb_state}"
+
+if [[ "${run_build}" -eq 1 ]]; then
+  "${repo_root}/scripts/build-debug"
+fi
+
+apk="${repo_root}/app/build/outputs/apk/debug/app-debug.apk"
+[[ -f "${apk}" ]] || fail "missing debug APK: ${apk}"
+
+if [[ -z "${capture_dir}" ]]; then
+  timestamp="$(date -u +%Y%m%dT%H%M%SZ)"
+  capture_dir="${repo_root}/captures/smoke-${timestamp}"
+elif [[ "${capture_dir}" != /* ]]; then
+  capture_dir="${repo_root}/${capture_dir}"
+fi
+mkdir -p "${capture_dir}"
+
+"${adb_cmd[@]}" logcat -c >/dev/null 2>&1 || true
+
+"${adb_cmd[@]}" install -r "${apk}" > "${capture_dir}/install.txt"
+"${adb_cmd[@]}" shell pm path "${target_package}" > "${capture_dir}/target-package.txt" 2>&1 || true
+"${adb_cmd[@]}" shell am force-stop "${target_package}" > "${capture_dir}/target-force-stop.txt" 2>&1 || true
+"${adb_cmd[@]}" shell am force-stop "${app_id}" > "${capture_dir}/rebobina-force-stop.txt" 2>&1 || true
+"${adb_cmd[@]}" shell am start -W -n "${app_id}/.MainActivity" > "${capture_dir}/rebobina-start.txt"
+sleep 2
+"${adb_cmd[@]}" exec-out screencap -p > "${capture_dir}/rebobina.png" || true
+"${adb_cmd[@]}" shell uiautomator dump /sdcard/rebobina-smoke.xml \
+  > "${capture_dir}/rebobina-window-dump.txt" 2>&1 || true
+"${adb_cmd[@]}" exec-out cat /sdcard/rebobina-smoke.xml \
+  > "${capture_dir}/rebobina-window.xml" 2>/dev/null || true
+
+app_text_status="skipped"
+app_missing_texts=""
+if [[ "${#app_expect_texts[@]}" -gt 0 ]]; then
+  app_text_status="ok"
+  for expected_text in "${app_expect_texts[@]}"; do
+    if ! grep -Fq "${expected_text}" "${capture_dir}/rebobina-window.xml"; then
+      app_text_status="missing_text"
+      app_missing_texts="${app_missing_texts}${expected_text}; "
+    fi
+  done
+fi
+
+ui_smoke_status="skipped"
+ui_foreground_status="skipped"
+ui_text_status="skipped"
+ui_missing_texts=""
+ui_foreground_activity=""
+ui_foreground_evidence=""
+ui_window_focus=""
+route_probe_status="skipped"
+route_probe_activity=""
+if [[ "${ui_smoke}" -eq 1 ]]; then
+  : > "${capture_dir}/rebobina-ui-keyevent.txt"
+  for keyevent in "${ui_keyevents[@]}"; do
+    {
+      echo "keyevent=${keyevent}"
+      "${adb_cmd[@]}" shell input keyevent "${keyevent}"
+    } >> "${capture_dir}/rebobina-ui-keyevent.txt" 2>&1
+    sleep 0.35
+  done
+  sleep 2
+  "${adb_cmd[@]}" exec-out screencap -p > "${capture_dir}/rebobina-ui-handoff.png" || true
+  "${adb_cmd[@]}" shell uiautomator dump /sdcard/rebobina-ui-handoff.xml \
+    > "${capture_dir}/rebobina-ui-window-dump.txt" 2>&1 || true
+  "${adb_cmd[@]}" exec-out cat /sdcard/rebobina-ui-handoff.xml \
+    > "${capture_dir}/rebobina-ui-window.xml" 2>/dev/null || true
+  "${adb_cmd[@]}" shell dumpsys activity activities \
+    > "${capture_dir}/rebobina-ui-activity.txt" 2>&1 || true
+  "${adb_cmd[@]}" shell dumpsys window windows \
+    > "${capture_dir}/rebobina-ui-window-manager.txt" 2>&1 || true
+  "${adb_cmd[@]}" logcat -d -v brief -s RebobinaHandoff \
+    > "${capture_dir}/rebobina-handoff-log.txt" 2>&1 || true
+
+  if grep -q "handoff_start uri=${ui_route}" "${capture_dir}/rebobina-handoff-log.txt" &&
+    grep -q "handoff_result status=requested uri=${ui_route}" "${capture_dir}/rebobina-handoff-log.txt"; then
+    ui_smoke_status="ok"
+  else
+    ui_smoke_status="missing_log"
+  fi
+
+  ui_foreground_activity="$(grep -m 1 "mResumedActivity:" "${capture_dir}/rebobina-ui-activity.txt" || true)"
+  ui_window_focus="$(
+    grep -E -m 1 "(mTopFullscreenOpaqueWindowState|imeLayeringTarget|imeInputTarget).*${target_package}/|Window #[0-9]+ Window\\{[^}]* ${target_package}/" \
+      "${capture_dir}/rebobina-ui-window-manager.txt" || true
+  )"
+  if printf '%s\n' "${ui_foreground_activity}" | grep -Fq "${target_package}/"; then
+    ui_foreground_status="ok"
+    ui_foreground_evidence="activity"
+  elif [[ -n "${ui_window_focus}" ]]; then
+    ui_foreground_status="ok"
+    ui_foreground_evidence="window_manager"
+  elif grep -Fq "package=\"${target_package}\"" "${capture_dir}/rebobina-ui-window.xml"; then
+    ui_foreground_status="ok"
+    ui_foreground_evidence="uiautomator"
+  else
+    ui_foreground_status="wrong_foreground"
+  fi
+
+  if [[ "${#ui_expect_texts[@]}" -gt 0 ]]; then
+    ui_text_status="ok"
+    for expected_text in "${ui_expect_texts[@]}"; do
+      if ! grep -Fq "${expected_text}" "${capture_dir}/rebobina-ui-window.xml"; then
+        ui_text_status="missing_text"
+        ui_missing_texts="${ui_missing_texts}${expected_text}; "
+      fi
+    done
+  fi
+fi
+
+if [[ "${probe_route}" -eq 1 ]]; then
+  "${adb_cmd[@]}" shell am start -W \
+    -a android.intent.action.VIEW \
+    -d "${route}" \
+    "${target_package}" > "${capture_dir}/route-probe.txt" 2>&1 || true
+  route_probe_activity="$(grep -m 1 "Activity:" "${capture_dir}/route-probe.txt" || true)"
+  if grep -q "Status: ok" "${capture_dir}/route-probe.txt" &&
+    printf '%s\n' "${route_probe_activity}" | grep -Fq "${target_package}/"; then
+    route_probe_status="ok"
+  else
+    route_probe_status="failed"
+  fi
+  sleep 2
+  "${adb_cmd[@]}" exec-out screencap -p > "${capture_dir}/provider-route.png" || true
+fi
+
+"${adb_cmd[@]}" logcat -d -v time > "${capture_dir}/logcat.txt" 2>&1 || true
+
+cat > "${capture_dir}/summary.txt" <<SUMMARY
+Smoke captured at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+ADB serial: ${adb_serial}
+App package: ${app_id}
+Target package: ${target_package}
+App text status: ${app_text_status}
+App expected text: ${app_expect_texts[*]-}
+App missing text: ${app_missing_texts}
+UI smoke enabled: ${ui_smoke}
+UI route expected: ${ui_route}
+UI keyevents: ${ui_keyevents[*]-}
+UI smoke status: ${ui_smoke_status}
+UI foreground status: ${ui_foreground_status}
+UI foreground evidence: ${ui_foreground_evidence}
+UI foreground activity: ${ui_foreground_activity}
+UI window focus: ${ui_window_focus}
+UI text status: ${ui_text_status}
+UI expected text: ${ui_expect_texts[*]-}
+UI missing text: ${ui_missing_texts}
+Route probe enabled: ${probe_route}
+Route probe status: ${route_probe_status}
+Route: ${route}
+Route probe activity: ${route_probe_activity}
+
+Files:
+- install.txt
+- target-package.txt
+- target-force-stop.txt
+- rebobina-force-stop.txt
+- rebobina-start.txt
+- rebobina.png
+- rebobina-window.xml
+- rebobina-ui-keyevent.txt, rebobina-ui-handoff.png,
+  rebobina-ui-window.xml, rebobina-ui-activity.txt,
+  rebobina-ui-window-manager.txt, and rebobina-handoff-log.txt
+  when UI smoke is enabled
+- route-probe.txt and provider-route.png when route probing is enabled
+- logcat.txt
+
+Review screenshots and logs before sharing them. They may include account UI.
+SUMMARY
+
+if [[ "${app_text_status}" == "missing_text" ]]; then
+  fail "Rebobina screen did not include expected local gallery text: ${app_missing_texts}"
+fi
+
+if [[ "${ui_smoke_status}" == "missing_log" ]]; then
+  fail "UI smoke did not record expected handoff log for ${ui_route}; see ${capture_dir}/rebobina-handoff-log.txt"
+fi
+
+if [[ "${ui_foreground_status}" == "wrong_foreground" ]]; then
+  fail "UI smoke did not foreground ${target_package}; saw: ${ui_foreground_activity}; window: ${ui_window_focus}"
+fi
+
+if [[ "${ui_text_status}" == "missing_text" ]]; then
+  fail "UI smoke did not find expected destination text: ${ui_missing_texts}"
+fi
+
+if [[ "${route_probe_status}" == "failed" ]]; then
+  fail "Route probe did not return Status: ok for ${route}; saw: ${route_probe_activity}"
+fi
+
+echo "smoke-device: wrote ${capture_dir}"

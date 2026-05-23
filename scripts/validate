@@ -1,0 +1,616 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+run_build=0
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/validate [--build]
+
+Runs fast repository harness checks. With --build, also builds the debug APK via
+scripts/build-debug.
+USAGE
+}
+
+fail() {
+  echo "validate: $*" >&2
+  exit 1
+}
+
+case "${1:-}" in
+  "")
+    ;;
+  "--build")
+    run_build=1
+    ;;
+  "-h"|"--help")
+    usage
+    exit 0
+    ;;
+  *)
+    usage >&2
+    fail "unknown argument: $1"
+    ;;
+esac
+
+required_files=(
+  "README.md"
+  ".gitignore"
+  ".ignore"
+  "AGENTS.md"
+  "ARCHITECTURE.md"
+  "build.gradle.kts"
+  "settings.gradle.kts"
+  "app/build.gradle.kts"
+  "app/src/main/AndroidManifest.xml"
+  "app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt"
+  "app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt"
+  "app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt"
+  "app/src/main/java/com/carjorvaz/rebobina/ProviderRoutes.kt"
+  "app/src/main/assets/sample-catchup.json"
+  "app/src/main/assets/sample-provider-metadata.json"
+  "docs/index.md"
+  "docs/VALIDATION.md"
+  "docs/QUALITY.md"
+  "docs/RELIABILITY.md"
+  "docs/SECURITY.md"
+  "docs/references/synthetic-provider-metadata-shape.json"
+  "docs/references/synthetic-provider-normalized-catalog.json"
+  "docs/generated/source-map.md"
+  "docs/design-docs/index.md"
+  "docs/design-docs/core-beliefs.md"
+  "docs/design-docs/harness-engineering.md"
+  "docs/product-specs/index.md"
+  "docs/product-specs/catch-up-handoff-gallery.md"
+  "docs/product-specs/metadata-adapter-boundary.md"
+  "docs/product-specs/provider-evidence.schema.json"
+  "docs/product-specs/provider-evidence/README.md"
+  "docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json"
+  "docs/exec-plans/tech-debt-tracker.md"
+  "scripts/check-doc-refs"
+  "scripts/generate-source-map"
+  "scripts/probe-route"
+  "scripts/probe-sections"
+  "scripts/compare-redacted-shapes"
+  "scripts/normalize-synthetic-provider-metadata"
+  "scripts/redact-json-shape"
+  "scripts/smoke-device"
+)
+
+for path in "${required_files[@]}"; do
+  [[ -f "${repo_root}/${path}" ]] || fail "missing required file: ${path}"
+done
+
+command -v jq >/dev/null 2>&1 || fail "jq is required for JSON harness checks"
+
+jq_check() {
+  local label="$1"
+  local filter="$2"
+  local path="$3"
+
+  jq -e "${filter}" "${repo_root}/${path}" >/dev/null || fail "${label}"
+}
+
+jq_check_many() {
+  local label="$1"
+  local filter="$2"
+  shift 2
+
+  local paths=()
+  local path
+  for path in "$@"; do
+    paths+=("${repo_root}/${path}")
+  done
+
+  jq -s -e "${filter}" "${paths[@]}" >/dev/null || fail "${label}"
+}
+
+agent_lines="$(wc -l < "${repo_root}/AGENTS.md" | tr -d ' ')"
+[[ "${agent_lines}" -le 140 ]] || fail "AGENTS.md is ${agent_lines} lines; keep it at or below 140"
+
+grep -q "LEANBACK_LAUNCHER" "${repo_root}/app/src/main/AndroidManifest.xml" \
+  || fail "AndroidManifest.xml must expose a TV launcher activity"
+
+grep -q "android:exported=\"true\"" "${repo_root}/app/src/main/AndroidManifest.xml" \
+  || fail "launcher activity must declare android:exported=\"true\""
+
+grep -q "android:banner=\"@drawable/tv_banner\"" "${repo_root}/app/src/main/AndroidManifest.xml" \
+  || fail "TV app should declare the launcher banner"
+
+grep -q "Intent.ACTION_VIEW" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+  || fail "MainActivity should launch provider handoffs with ACTION_VIEW"
+
+grep -q "RebobinaHandoff" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+  || fail "MainActivity should log handoff attempts for smoke validation"
+
+grep -q "CatchupCatalogLoader.load" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+  || fail "MainActivity should render the local catch-up catalog"
+
+grep -q "interface CatchupCatalogSource" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt" \
+  || fail "CatchupCatalog should expose a metadata source boundary"
+
+grep -q "AssetCatchupCatalogSource" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt" \
+  || fail "CatchupCatalog should keep the fixture source explicit"
+
+grep -q "ProviderMetadataSnapshotParser" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt" \
+  || fail "ProviderMetadataSnapshot should expose the synthetic metadata normalizer"
+
+grep -q "ProviderMetadataSnapshotSource" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt" \
+  || fail "ProviderMetadataSnapshot should expose a catalog source for synthetic metadata"
+
+grep -q ": CatchupCatalogSource" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt" \
+  || fail "synthetic provider metadata source should implement CatchupCatalogSource"
+
+grep -q "ProviderRouteComposer" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/ProviderRoutes.kt" \
+  || fail "ProviderRoutes should expose the official-app route composer"
+
+grep -q "candidateProviderRoute" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt" \
+  || fail "CatchupCatalog should keep exact route candidates separate from active Watch routes"
+
+grep -q "candidateProviderRoute" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt" \
+  || fail "ProviderMetadataSnapshot should normalize synthetic exact route candidates"
+
+grep -q "raw media URLs" "${repo_root}/docs/product-specs/metadata-adapter-boundary.md" \
+  || fail "metadata adapter boundary must forbid raw media URLs"
+
+grep -q "wireFocusNavigation" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+  || fail "MainActivity should wire TV focus navigation for smoke validation"
+
+grep -q "watchAction" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+  || fail "MainActivity should expose a focusable Watch action"
+
+grep -q "isAllowedProviderUri" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+  || fail "MainActivity should reject unsafe provider routes before launch"
+
+grep -q "launch_rejected" "${repo_root}/app/src/main/res/values/strings.xml" \
+  || fail "strings.xml should include unsafe route rejection status"
+
+[[ -x "${repo_root}/scripts/check-doc-refs" ]] \
+  || fail "scripts/check-doc-refs must be executable"
+
+"${repo_root}/scripts/check-doc-refs" >/dev/null \
+  || fail "documentation contains stale local references"
+
+[[ -x "${repo_root}/scripts/generate-source-map" ]] \
+  || fail "scripts/generate-source-map must be executable"
+
+source_map_date="$(
+  awk -F': ' '/^Date generated:/ { print $2; exit }' \
+    "${repo_root}/docs/generated/source-map.md"
+)"
+[[ "${source_map_date}" =~ ^[0-9]{4}-[0-9]{2}-[0-9]{2}$ ]] \
+  || fail "docs/generated/source-map.md must include a YYYY-MM-DD generated date"
+
+source_map_check="$(mktemp "${TMPDIR:-/tmp}/rebobina-source-map.XXXXXX.md")"
+REBOBINA_SOURCE_MAP_DATE="${source_map_date}" \
+  "${repo_root}/scripts/generate-source-map" "${source_map_check}"
+if ! diff -u "${repo_root}/docs/generated/source-map.md" "${source_map_check}" >/dev/null; then
+  rm -f "${source_map_check}"
+  fail "docs/generated/source-map.md is stale; regenerate with scripts/generate-source-map"
+fi
+rm -f "${source_map_check}"
+
+[[ -x "${repo_root}/scripts/probe-route" ]] \
+  || fail "scripts/probe-route must be executable"
+
+grep -q -- "--serial" "${repo_root}/scripts/probe-route" \
+  || fail "scripts/probe-route must support selecting an adb serial"
+
+grep -q "summary.txt" "${repo_root}/scripts/probe-route" \
+  || fail "scripts/probe-route must write a compact summary"
+
+grep -q "am start -W" "${repo_root}/scripts/probe-route" \
+  || fail "scripts/probe-route must capture Android start status"
+
+grep -q "Foreground status" "${repo_root}/scripts/probe-route" \
+  || fail "scripts/probe-route must summarize provider foreground status"
+
+jq_check "sample-catchup.json must identify itself as a safe local fixture" \
+  '.generatedFor == "Rebobina safe local fixture"' \
+  "app/src/main/assets/sample-catchup.json"
+
+jq_check "sample-catchup.json must include days, channels, and programmes" \
+  '((.days | type) == "array" and (.days | length) > 0) and
+   ((.channels | type) == "array" and (.channels | length) > 0) and
+   ((.programmes | type) == "array" and (.programmes | length) > 0)' \
+  "app/src/main/assets/sample-catchup.json"
+
+jq_check "sample-catchup.json IDs must be unique" \
+  '((.days | map(.id) | length) == (.days | map(.id) | unique | length)) and
+   ((.channels | map(.id) | length) == (.channels | map(.id) | unique | length)) and
+   ((.programmes | map(.id) | length) == (.programmes | map(.id) | unique | length))' \
+  "app/src/main/assets/sample-catchup.json"
+
+jq_check "sample-catchup.json programmes must reference known days and channels" \
+  '([.days[].id] as $days |
+    [.channels[].id] as $channels |
+    all(.programmes[];
+      .dayId as $day |
+      .channelId as $channel |
+      (($days | index($day)) != null and ($channels | index($channel)) != null)))' \
+  "app/src/main/assets/sample-catchup.json"
+
+jq_check "sample-catchup.json programme links must reference known programmes" \
+  '([.programmes[].id] as $ids |
+    all(.programmes[];
+      (.previousProgrammeId // "") as $previous |
+      (.nextProgrammeId // "") as $next |
+      (($previous == "" or ($ids | index($previous) != null)) and
+       ($next == "" or ($ids | index($next) != null)))))' \
+  "app/src/main/assets/sample-catchup.json"
+
+jq_check "sample-catchup.json programme timings, progress, and accents must be valid" \
+  'all(.programmes[];
+    (.start | test("^([01][0-9]|2[0-3]):[0-5][0-9]$")) and
+    (.end | test("^([01][0-9]|2[0-3]):[0-5][0-9]$")) and
+    (has("progressPercent") and (.progressPercent | type) == "number" and
+      .progressPercent >= 0 and .progressPercent <= 100) and
+    (.accent as $accent | ($accent | type) == "string" and
+      ($accent | test("^#[0-9A-Fa-f]{6}$"))))' \
+  "app/src/main/assets/sample-catchup.json"
+
+jq_check "sample-catchup.json must use provider-declared digitv routes" \
+  'all(.programmes[];
+    .providerRoute as $route |
+    ($route | type) == "string" and ($route | startswith("digitv://")))' \
+  "app/src/main/assets/sample-catchup.json"
+
+jq_check "sample-provider-metadata.json must identify itself as synthetic metadata" \
+  '.generatedFor == "Rebobina synthetic provider metadata fixture"' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check "sample-provider-metadata.json must include safe provider-like metadata fields" \
+  '((.dates | type) == "array" and (.dates | length) > 0) and
+   all(.dates[].channels[];
+     (.common_id | type) == "string" and
+     (.name | type) == "string" and
+     (.number | type) == "number" and
+     ((.events | type) == "array" and (.events | length) > 0)) and
+   all(.dates[].channels[].events[];
+     (.id | type) == "string" and
+     (.common_id | type) == "string" and
+     (.start_time | type) == "string" and
+     (.end_time | type) == "string" and
+     (.title | type) == "string" and
+     (.watchInfo.progress | type) == "number")' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check "sample-provider-metadata.json must include expected redacted source shapes" \
+  '(["catchup/byDate", "epg/events", "epg-events"] - .sourceShapes) == []' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check "sample-provider-metadata.json event channel IDs must match parent channels" \
+  '[.dates[].channels[] as $channel |
+     $channel.events[] |
+     select(.common_id != $channel.common_id)]
+   | length == 0' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check "sample-provider-metadata.json event details must reference known events" \
+  '([.dates[].channels[].events[] | .common_id + "|" + .id] as $events |
+    [(.eventDetails // [])[] as $detail |
+      select(($events | index($detail.common_id + "|" + $detail.id)) == null)]
+    | length == 0)' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check "sample-provider-metadata.json event timing and progress must stay normalizable" \
+  'all(.dates[].channels[].events[];
+    (.start_time | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:")) and
+    (.end_time | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:")) and
+    (.watchInfo.progress >= 0 and .watchInfo.progress <= 100) and
+    (.watchInfo.duration > 0))' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check "sample-provider-metadata.json must exercise inferred episode neighbours" \
+  '[
+     .dates[].channels[].events[]
+     | select(.seriesTitle == "Domingao" and .seasonLabel == "T17")
+     | .episodeLabel
+     | capture("^E(?<episode>[0-9]+)$").episode
+     | tonumber
+   ] | sort == [18, 19, 20]' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check "sample-provider-metadata.json must exercise exact route candidate fields" \
+  'all(.dates[].channels[].events[];
+    (.routeFields.catchupstream.epgItem | type) == "string" and
+    (.routeFields.catchupstream.id | type) == "string" and
+    (.routeFields.catchupstream.name | type) == "string" and
+    (.routeFields.catchupstream.logo | type) == "string")' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check "sample-provider-metadata.json must not contain playback or credential keys" \
+  '[paths as $path |
+    $path[]? |
+    select(type == "string") |
+    select(test("(?i)(stream_url|catchup_url|playback|license|token|cookie|password|proxy|account)"))]
+   | length == 0' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
+jq_check_many "sample-catchup.json provider routes must be recorded in provider evidence" \
+  '.[0] as $catalog |
+   .[1] as $evidence |
+   [$evidence.records[] |
+     select(.result == "verified_exact" or .result == "route_verified") |
+     .uriShape] as $routes |
+   all($catalog.programmes[];
+     .providerRoute as $route |
+     ($routes | index($route) != null))' \
+  "app/src/main/assets/sample-catchup.json" \
+  "docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json"
+
+allowed_route_roots="$(
+  awk '/ALLOWED_ROUTE_ROOTS = setOf\(/,/^[[:space:]]*\)/ { print }' \
+    "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+    | grep -o '"[^"]*"' \
+    | tr -d '"' \
+    | LC_ALL=C sort -u
+)"
+
+fixture_route_roots="$(
+  jq -r '
+    .programmes[].providerRoute
+    | capture("^digitv://(?<root>[^/?#]*)").root
+    | select(length > 0)
+  ' "${repo_root}/app/src/main/assets/sample-catchup.json" | LC_ALL=C sort -u
+)"
+
+evidence_route_roots="$(
+  jq -r '
+    .records[].uriShape
+    | capture("^digitv://(?<root>[^/<?]*)").root
+    | select(length > 0)
+  ' "${repo_root}/docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json" | LC_ALL=C sort -u
+)"
+
+missing_allowed_roots="$(comm -23 <(printf '%s\n' "${fixture_route_roots}") <(printf '%s\n' "${allowed_route_roots}"))"
+[[ -z "${missing_allowed_roots}" ]] || fail "fixture provider route roots missing from app allowlist: ${missing_allowed_roots}"
+
+missing_evidence_roots="$(comm -23 <(printf '%s\n' "${allowed_route_roots}") <(printf '%s\n' "${evidence_route_roots}"))"
+[[ -z "${missing_evidence_roots}" ]] || fail "app allowlist route roots missing from provider evidence: ${missing_evidence_roots}"
+
+grep -q "scripts/validate" "${repo_root}/AGENTS.md" \
+  || fail "AGENTS.md must tell agents how to validate changes"
+
+grep -q "GitHub Actions" "${repo_root}/AGENTS.md" \
+  || fail "AGENTS.md must warn agents about GitHub Actions billing review"
+
+if find "${repo_root}/.github/workflows" -type f \( -name "*.yml" -o -name "*.yaml" \) 2>/dev/null | grep -q .; then
+  fail "GitHub Actions workflows are disabled in this repo to avoid surprise usage"
+fi
+
+[[ -x "${repo_root}/scripts/redact-json-shape" ]] \
+  || fail "scripts/redact-json-shape must be executable"
+
+[[ -x "${repo_root}/scripts/compare-redacted-shapes" ]] \
+  || fail "scripts/compare-redacted-shapes must be executable"
+
+shape_summary="$("${repo_root}/scripts/redact-json-shape" "${repo_root}/app/src/main/assets/sample-catchup.json")"
+printf '%s\n' "${shape_summary}" | jq -e \
+  '.generatedFor == "Rebobina redacted metadata shape" and
+   any(.objectFields[]; .path == "$.generatedFor") and
+   any(.scalars[]; .path == "$.programmes[].title" and (.syntheticExample == "redacted-string"))' \
+  >/dev/null || fail "scripts/redact-json-shape must summarize fixture scalar paths"
+
+if printf '%s\n' "${shape_summary}" | grep -Fq "O Diabo Veste Prada"; then
+  fail "scripts/redact-json-shape leaked a fixture scalar value"
+fi
+
+stdin_shape_summary="$("${repo_root}/scripts/redact-json-shape" - < "${repo_root}/app/src/main/assets/sample-catchup.json")"
+printf '%s\n' "${stdin_shape_summary}" | jq -e \
+  '.generatedFor == "Rebobina redacted metadata shape" and
+   any(.scalars[]; .path == "$.programmes[].title" and (.syntheticExample == "redacted-string"))' \
+  >/dev/null || fail "scripts/redact-json-shape must support stdin input"
+
+provider_shape_summary="$("${repo_root}/scripts/redact-json-shape" "${repo_root}/app/src/main/assets/sample-provider-metadata.json")"
+printf '%s\n' "${provider_shape_summary}" | jq -e \
+  '.generatedFor == "Rebobina redacted metadata shape" and
+   any(.objectFields[]; .path == "$.dates[].channels[].events[].common_id") and
+   any(.scalars[]; .path == "$.dates[].channels[].events[].watchInfo.progress" and (.syntheticExample == 0))' \
+  >/dev/null || fail "scripts/redact-json-shape must summarize synthetic provider metadata shape"
+
+if printf '%s\n' "${provider_shape_summary}" | grep -Fq "Domingao"; then
+  fail "scripts/redact-json-shape leaked a synthetic provider scalar value"
+fi
+
+jq_check "synthetic provider metadata shape reference must be redacted" \
+  '.generatedFor == "Rebobina redacted metadata shape" and
+   any(.scalars[]; .path == "$.dates[].channels[].events[].title" and (.syntheticExample == "redacted-string"))' \
+  "docs/references/synthetic-provider-metadata-shape.json"
+
+shape_comparison="$("${repo_root}/scripts/compare-redacted-shapes" \
+  "${repo_root}/docs/references/synthetic-provider-metadata-shape.json" \
+  "${repo_root}/docs/references/synthetic-provider-metadata-shape.json")"
+printf '%s\n' "${shape_comparison}" | jq -e \
+  '.generatedFor == "Rebobina redacted metadata shape comparison" and
+   .compatible == true and
+   (.arrays.missingFromCandidate | length) == 0 and
+   (.objectFields.missingFromCandidate | length) == 0 and
+   (.scalars.typeMismatches | length) == 0' \
+  >/dev/null || fail "scripts/compare-redacted-shapes must accept identical shapes"
+
+[[ -x "${repo_root}/scripts/normalize-synthetic-provider-metadata" ]] \
+  || fail "scripts/normalize-synthetic-provider-metadata must be executable"
+
+normalizer_reject_fixture="$(mktemp "${TMPDIR:-/tmp}/rebobina-normalizer-reject.XXXXXX.json")"
+jq -n '{generatedFor: "not a synthetic Rebobina fixture", dates: []}' > "${normalizer_reject_fixture}"
+if "${repo_root}/scripts/normalize-synthetic-provider-metadata" "${normalizer_reject_fixture}" >/dev/null 2>&1; then
+  rm -f "${normalizer_reject_fixture}"
+  fail "scripts/normalize-synthetic-provider-metadata must reject non-synthetic inputs"
+fi
+rm -f "${normalizer_reject_fixture}"
+
+normalized_catalog="$("${repo_root}/scripts/normalize-synthetic-provider-metadata" "${repo_root}/app/src/main/assets/sample-provider-metadata.json")"
+printf '%s\n' "${normalized_catalog}" | jq -e \
+  '.generatedFor == "Rebobina normalized synthetic provider catalog" and
+   .sourceGeneratedFor == "Rebobina synthetic provider metadata fixture" and
+   ((.days | length) == 3) and
+   ((.channels | map(.id) | sort) == ["rtp1", "sic"]) and
+   ((.programmes | length) == 4) and
+   any(.programmes[];
+     .id == "provider-sic-evt-sic-domingao-1719" and
+     .previousProgrammeId == "provider-sic-evt-sic-domingao-1718" and
+     .nextProgrammeId == "provider-sic-evt-sic-domingao-1720" and
+     .progressPercent == 34 and
+     .providerRoute == "digitv://u7d" and
+     .candidateProviderRoute == "digitv://catchupstream/epg-20260517-sic-1500/evt-sic-domingao-1719/Domingao/sic-logo") and
+   any(.programmes[];
+     .id == "provider-rtp1-evt-rtp1-1505" and
+     .providerRoute == "digitv://u7d" and
+     .candidateProviderRoute == "digitv://catchupstream/epg-20260517-rtp1-1505/evt-rtp1-1505/O%20Diabo%20Veste%20Prada/rtp1-logo")' \
+  >/dev/null || fail "synthetic provider metadata normalization must produce the expected catalog contract"
+
+normalized_reference_check="$(mktemp "${TMPDIR:-/tmp}/rebobina-normalized-reference.XXXXXX.json")"
+"${repo_root}/scripts/normalize-synthetic-provider-metadata" \
+  "${repo_root}/app/src/main/assets/sample-provider-metadata.json" \
+  "${normalized_reference_check}"
+if ! diff -u "${repo_root}/docs/references/synthetic-provider-normalized-catalog.json" "${normalized_reference_check}" >/dev/null; then
+  rm -f "${normalized_reference_check}"
+  fail "synthetic provider normalized catalog reference is stale; regenerate with scripts/normalize-synthetic-provider-metadata"
+fi
+rm -f "${normalized_reference_check}"
+
+shape_reference_check="$(mktemp "${TMPDIR:-/tmp}/rebobina-shape-reference.XXXXXX.json")"
+"${repo_root}/scripts/redact-json-shape" \
+  "${repo_root}/app/src/main/assets/sample-provider-metadata.json" \
+  "${shape_reference_check}"
+if ! diff -u "${repo_root}/docs/references/synthetic-provider-metadata-shape.json" "${shape_reference_check}" >/dev/null; then
+  rm -f "${shape_reference_check}"
+  fail "synthetic provider metadata shape reference is stale; regenerate with scripts/redact-json-shape"
+fi
+rm -f "${shape_reference_check}"
+
+redaction_fixture="$(mktemp "${TMPDIR:-/tmp}/rebobina-redaction-fixture.XXXXXX.json")"
+trap 'rm -f "${redaction_fixture:-}"' EXIT
+redaction_title="REBOBINA_REDACTION_SENTINEL_TITLE"
+redaction_token_value="REBOBINA_REDACTION_SENTINEL_TOKEN_VALUE"
+redaction_url="https://example.invalid/private/media.m3u""8?secret=REBOBINA_REDACTION_SENTINEL_URL"
+redaction_header_value="REBOBINA_REDACTION_SENTINEL_HEADER"
+jq -n \
+  --arg title "${redaction_title}" \
+  --arg token "${redaction_token_value}" \
+  --arg url "${redaction_url}" \
+  --arg header "${redaction_header_value}" \
+  '{
+    items: [
+      {
+        title: $title,
+        accessToken: $token,
+        playbackUrl: $url,
+        cookie: $header
+      }
+    ]
+  }' > "${redaction_fixture}"
+
+redaction_summary="$("${repo_root}/scripts/redact-json-shape" "${redaction_fixture}")"
+printf '%s\n' "${redaction_summary}" | jq -e \
+  'any(.scalars[]; .path == "$.items[].title" and .syntheticExample == "redacted-string") and
+   any(.scalars[]; .path == "$.items[].accessToken" and .syntheticExample == "redacted-string") and
+   any(.scalars[]; .path == "$.items[].playbackUrl" and .syntheticExample == "redacted-string") and
+   any(.scalars[]; .path == "$.items[].cookie" and .syntheticExample == "redacted-string")' \
+  >/dev/null || fail "scripts/redact-json-shape must summarize sensitive-looking scalar paths"
+
+for leaked_value in "${redaction_title}" "${redaction_token_value}" "${redaction_url}" "${redaction_header_value}"; do
+  if printf '%s\n' "${redaction_summary}" | grep -Fq "${leaked_value}"; then
+    fail "scripts/redact-json-shape leaked a sensitive-looking scalar value"
+  fi
+done
+
+[[ -x "${repo_root}/scripts/smoke-device" ]] \
+  || fail "scripts/smoke-device must be executable"
+
+grep -q -- "--no-ui-smoke" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must support disabling UI smoke"
+
+grep -q "UI keyevents" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must report remote key sequence"
+
+grep -q "UI foreground status" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must report provider foreground status"
+
+grep -q "UI foreground evidence" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must report provider foreground evidence"
+
+grep -q "UI text status" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must report provider destination text status"
+
+grep -q "App text status" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must report Rebobina gallery text status"
+
+grep -q "Route probe status" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must report direct route probe status"
+
+grep -q "captures/" "${repo_root}/.ignore" \
+  || fail ".ignore must hide local smoke captures from agent searches"
+
+grep -q "captures/" "${repo_root}/.gitignore" \
+  || fail ".gitignore must keep local smoke captures out of commits"
+
+jq_check "provider evidence must include structured safe route records" \
+  '(.schemaVersion == 1) and
+   (.appPackage == "ro.digionline.tv") and
+   (.scheme == "digitv") and
+   (.observedDate | test("^[0-9]{4}-[0-9]{2}-[0-9]{2}$")) and
+   ((.records | type) == "array" and (.records | length) > 0) and
+   all(.records[];
+     ((.sensitiveData == "none") or (.sensitiveData == "redacted")) and
+     (.uriShape | startswith("digitv://")) and
+     ((.evidence | type) == "string" and (.evidence | length) > 0))' \
+  "docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json"
+
+jq_check "provider evidence must keep the u7d and catchup routes verified" \
+  'any(.records[]; .routeName == "u7d" and .result == "verified_exact") and
+   any(.records[]; .routeName == "catchup" and .result == "verified_exact")' \
+  "docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json"
+
+if [[ -f "${repo_root}/app/src/main/res/values-pt/strings.xml" ]]; then
+  default_strings="$(
+    grep -o 'name="[^"]*"' "${repo_root}/app/src/main/res/values/strings.xml" \
+      | sed 's/name="//; s/"//' \
+      | LC_ALL=C sort
+  )"
+  portuguese_strings="$(
+    grep -o 'name="[^"]*"' "${repo_root}/app/src/main/res/values-pt/strings.xml" \
+      | sed 's/name="//; s/"//' \
+      | LC_ALL=C sort
+  )"
+  missing_defaults="$(comm -23 <(printf '%s\n' "${portuguese_strings}") <(printf '%s\n' "${default_strings}"))"
+  missing_portuguese="$(comm -23 <(printf '%s\n' "${default_strings}") <(printf '%s\n' "${portuguese_strings}"))"
+  [[ -z "${missing_defaults}" ]] || fail "Portuguese strings missing defaults: ${missing_defaults}"
+  [[ -z "${missing_portuguese}" ]] || fail "Default strings missing Portuguese translations: ${missing_portuguese}"
+fi
+
+scan_for_sensitive_data() {
+  local pattern="$1"
+  local label="$2"
+  local matches
+
+  matches="$(
+    grep -RInE \
+      --exclude-dir=.git \
+      --exclude-dir=.gradle \
+      --exclude-dir=build \
+      --exclude-dir=captures \
+      --exclude='*.apk' \
+      --exclude='*.aab' \
+      --exclude='*.jks' \
+      --exclude='*.keystore' \
+      "${pattern}" \
+      "${repo_root}" || true
+  )"
+
+  [[ -z "${matches}" ]] || fail "possible sensitive data (${label}): ${matches}"
+}
+
+scan_for_sensitive_data "Bearer[[:space:]]+[A-Za-z0-9._~+/=-]{20,}" "bearer token"
+scan_for_sensitive_data "(access|refresh)[_-]?token[[:space:]]*[:=][[:space:]]*[\"']?[A-Za-z0-9._~+/=-]{12,}" "token assignment"
+scan_for_sensitive_data "(password|passwd|cookie|session)[[:space:]]*[:=][[:space:]]*[\"']?[A-Za-z0-9._~+/=-]{12,}" "credential assignment"
+scan_for_sensitive_data "https?://[^[:space:]\"']+\\.m3u8([?][^[:space:]\"']*)?" "raw stream URL"
+scan_for_sensitive_data "^#EXTM3U" "playlist content"
+
+if [[ "${run_build}" -eq 1 ]]; then
+  "${repo_root}/scripts/build-debug"
+fi
+
+echo "validate: ok"

@@ -1,0 +1,765 @@
+{
+  "generatedFor": "Rebobina redacted metadata shape",
+  "rootType": "object",
+  "arrays": [
+    {
+      "path": "$.dates",
+      "occurrences": 1,
+      "observedLengths": [
+        3
+      ]
+    },
+    {
+      "path": "$.dates[].channels",
+      "occurrences": 3,
+      "observedLengths": [
+        1,
+        2
+      ]
+    },
+    {
+      "path": "$.dates[].channels[].events",
+      "occurrences": 4,
+      "observedLengths": [
+        1
+      ]
+    },
+    {
+      "path": "$.dates[].channels[].events[].labels",
+      "occurrences": 2,
+      "observedLengths": [
+        1
+      ]
+    },
+    {
+      "path": "$.eventDetails",
+      "occurrences": 1,
+      "observedLengths": [
+        1
+      ]
+    },
+    {
+      "path": "$.sourceShapes",
+      "occurrences": 1,
+      "observedLengths": [
+        3
+      ]
+    }
+  ],
+  "objectFields": [
+    {
+      "path": "$.dates",
+      "field": "dates",
+      "parents": [
+        "$"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.dates[].channels",
+      "field": "channels",
+      "parents": [
+        "$.dates[]"
+      ],
+      "occurrences": 3
+    },
+    {
+      "path": "$.dates[].channels[].common_id",
+      "field": "common_id",
+      "parents": [
+        "$.dates[].channels[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events",
+      "field": "events",
+      "parents": [
+        "$.dates[].channels[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].category",
+      "field": "category",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].common_id",
+      "field": "common_id",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].description",
+      "field": "description",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].end_time",
+      "field": "end_time",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].episodeLabel",
+      "field": "episodeLabel",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 3
+    },
+    {
+      "path": "$.dates[].channels[].events[].id",
+      "field": "id",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].labels",
+      "field": "labels",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 2
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields",
+      "field": "routeFields",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream",
+      "field": "catchupstream",
+      "parents": [
+        "$.dates[].channels[].events[].routeFields"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream.epgItem",
+      "field": "epgItem",
+      "parents": [
+        "$.dates[].channels[].events[].routeFields.catchupstream"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream.id",
+      "field": "id",
+      "parents": [
+        "$.dates[].channels[].events[].routeFields.catchupstream"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream.logo",
+      "field": "logo",
+      "parents": [
+        "$.dates[].channels[].events[].routeFields.catchupstream"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream.name",
+      "field": "name",
+      "parents": [
+        "$.dates[].channels[].events[].routeFields.catchupstream"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].seasonLabel",
+      "field": "seasonLabel",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 3
+    },
+    {
+      "path": "$.dates[].channels[].events[].seriesTitle",
+      "field": "seriesTitle",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 3
+    },
+    {
+      "path": "$.dates[].channels[].events[].start_time",
+      "field": "start_time",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].title",
+      "field": "title",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].watchInfo",
+      "field": "watchInfo",
+      "parents": [
+        "$.dates[].channels[].events[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].watchInfo.duration",
+      "field": "duration",
+      "parents": [
+        "$.dates[].channels[].events[].watchInfo"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].events[].watchInfo.progress",
+      "field": "progress",
+      "parents": [
+        "$.dates[].channels[].events[].watchInfo"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].name",
+      "field": "name",
+      "parents": [
+        "$.dates[].channels[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].channels[].number",
+      "field": "number",
+      "parents": [
+        "$.dates[].channels[]"
+      ],
+      "occurrences": 4
+    },
+    {
+      "path": "$.dates[].date",
+      "field": "date",
+      "parents": [
+        "$.dates[]"
+      ],
+      "occurrences": 3
+    },
+    {
+      "path": "$.dates[].label",
+      "field": "label",
+      "parents": [
+        "$.dates[]"
+      ],
+      "occurrences": 3
+    },
+    {
+      "path": "$.dates[].subtitle",
+      "field": "subtitle",
+      "parents": [
+        "$.dates[]"
+      ],
+      "occurrences": 3
+    },
+    {
+      "path": "$.eventDetails",
+      "field": "eventDetails",
+      "parents": [
+        "$"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].available_end",
+      "field": "available_end",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].available_start",
+      "field": "available_start",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].common_id",
+      "field": "common_id",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].episodeLabel",
+      "field": "episodeLabel",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].id",
+      "field": "id",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].seasonLabel",
+      "field": "seasonLabel",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].watchInfo",
+      "field": "watchInfo",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].watchInfo.progress",
+      "field": "progress",
+      "parents": [
+        "$.eventDetails[].watchInfo"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.generatedFor",
+      "field": "generatedFor",
+      "parents": [
+        "$"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.notes",
+      "field": "notes",
+      "parents": [
+        "$"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.sourceShapes",
+      "field": "sourceShapes",
+      "parents": [
+        "$"
+      ],
+      "occurrences": 1
+    }
+  ],
+  "scalars": [
+    {
+      "path": "$.dates[].channels[].common_id",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 3,
+        "max": 4
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].category",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 5,
+        "max": 6
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].common_id",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 3,
+        "max": 4
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].description",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 36,
+        "max": 99
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].end_time",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 25,
+        "max": 25
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].episodeLabel",
+      "occurrences": 3,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 3,
+        "max": 3
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].id",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 13,
+        "max": 21
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].labels[]",
+      "occurrences": 2,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 5,
+        "max": 14
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream.epgItem",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 21,
+        "max": 22
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream.id",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 13,
+        "max": 21
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream.logo",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 8,
+        "max": 9
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].routeFields.catchupstream.name",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 8,
+        "max": 19
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].seasonLabel",
+      "occurrences": 3,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 3,
+        "max": 3
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].seriesTitle",
+      "occurrences": 3,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 8,
+        "max": 8
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].start_time",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 25,
+        "max": 25
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].title",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 8,
+        "max": 19
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].events[].watchInfo.duration",
+      "occurrences": 4,
+      "types": [
+        "number"
+      ],
+      "stringLengths": null,
+      "syntheticExample": 0
+    },
+    {
+      "path": "$.dates[].channels[].events[].watchInfo.progress",
+      "occurrences": 4,
+      "types": [
+        "number"
+      ],
+      "stringLengths": null,
+      "syntheticExample": 0
+    },
+    {
+      "path": "$.dates[].channels[].name",
+      "occurrences": 4,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 3,
+        "max": 5
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].channels[].number",
+      "occurrences": 4,
+      "types": [
+        "number"
+      ],
+      "stringLengths": null,
+      "syntheticExample": 0
+    },
+    {
+      "path": "$.dates[].date",
+      "occurrences": 3,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 10,
+        "max": 10
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].label",
+      "occurrences": 3,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 4,
+        "max": 5
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.dates[].subtitle",
+      "occurrences": 3,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 7,
+        "max": 7
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].available_end",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 25,
+        "max": 25
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].available_start",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 25,
+        "max": 25
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].common_id",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 3,
+        "max": 3
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].episodeLabel",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 3,
+        "max": 3
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].id",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 21,
+        "max": 21
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].seasonLabel",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 3,
+        "max": 3
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].watchInfo.progress",
+      "occurrences": 1,
+      "types": [
+        "number"
+      ],
+      "stringLengths": null,
+      "syntheticExample": 0
+    },
+    {
+      "path": "$.generatedFor",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 44,
+        "max": 44
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.notes",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 107,
+        "max": 107
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.sourceShapes[]",
+      "occurrences": 3,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 10,
+        "max": 14
+      },
+      "syntheticExample": "redacted-string"
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+{
+  "schemaVersion": 1,
+  "providerName": "Digi Online TV",
+  "appPackage": "ro.digionline.tv",
+  "scheme": "digitv",
+  "providerAppVersion": "2.7.0",
+  "device": "Sony BRAVIA Android TV test device",
+  "observedDate": "2026-05-17",
+  "source": "docs/research-notes.md; captures/smoke-20260517T150745Z; captures/smoke-20260517T151755Z; captures/smoke-20260517T152028Z; captures/smoke-20260517T152331Z; captures/smoke-20260517T152616Z; captures/smoke-20260517T153552Z; captures/smoke-20260517T154618Z; captures/smoke-20260517T162025Z; captures/20260517T164332Z-catchupstream-fake; captures/20260517T164351Z-livestream-fake; captures/20260517T170453Z-u7d-summary; captures/20260517T170855Z-synthetic-catchupstream-prada",
+  "records": [
+    {
+      "purpose": "section",
+      "routeName": "home",
+      "uriShape": "digitv://",
+      "result": "verified_exact",
+      "evidence": "scripts/probe-sections opened the provider home screen with the welcome hero and live rail.",
+      "sensitiveData": "none"
+    },
+    {
+      "purpose": "section",
+      "routeName": "catchup",
+      "uriShape": "digitv://catchup",
+      "result": "verified_exact",
+      "evidence": "ADB resolved the route, Rebobina debug build 0.1.0 opened the provider app's catch-up date/channel grid, scripts/probe-sections reproduced the same destination, and smoke run 2026-05-17T15:07:54Z opened ro.digionline.tv/.MainActivity through digitv://catchup with Status ok.",
+      "sensitiveData": "none"
+    },
+    {
+      "purpose": "content",
+      "routeName": "content",
+      "uriShape": "digitv://content/<contentId>/<channelId>",
+      "result": "route_verified",
+      "evidence": "ADB with placeholder IDs reached an attempted content state and displayed an unavailable-channel message.",
+      "sensitiveData": "none",
+      "notes": "This proves route handling, not a specific playable item."
+    },
+    {
+      "purpose": "section",
+      "routeName": "u7d",
+      "uriShape": "digitv://u7d",
+      "result": "verified_exact",
+      "evidence": "scripts/probe-sections opened the provider Flashback tab with gallery rows for films and series from the last 7 days. Smoke runs launched Rebobina, validated local gallery markers, drove the TV focus path to Watch, recorded RebobinaHandoff logs for digitv://u7d with status requested, asserted provider visibility with activity/window evidence, verified safe Flashback destination markers, and asserted the direct digitv://catchup route probe. The 2026-05-17T16:20:49Z run proved the current fixture-backed gallery path still follows the provider handoff path after runtime route guarding. A focused 2026-05-17T17:04:53Z route probe wrote summary.txt with Route probe status ok, Android Status ok, Activity ro.digionline.tv/.MainActivity, and foreground evidence from activity plus window-manager focus.",
+      "sensitiveData": "none",
+      "notes": "This is the strongest immediate workaround for catch-up discovery because it lands on the provider's own gallery view."
+    },
+    {
+      "purpose": "section",
+      "routeName": "epg",
+      "uriShape": "digitv://epg",
+      "result": "verified_exact",
+      "evidence": "scripts/probe-sections opened the provider TV guide grid with channels, dates, times, and programme blocks.",
+      "sensitiveData": "none"
+    },
+    {
+      "purpose": "section",
+      "routeName": "search",
+      "uriShape": "digitv://search",
+      "result": "verified_exact",
+      "evidence": "scripts/probe-sections opened the provider search screen with an on-screen keyboard and popular-title gallery.",
+      "sensitiveData": "none"
+    },
+    {
+      "purpose": "live_channel",
+      "routeName": "livestream",
+      "uriShape": "digitv://livestream/<channelId>",
+      "result": "route_verified",
+      "evidence": "ADB delivered digitv://livestream/fake-channel to the running provider app. The provider foregrounded ro.digionline.tv/.MainActivity and displayed its own unavailable-channel state.",
+      "sensitiveData": "none",
+      "notes": "This proves the route handler and channel ID slot with fake data. It does not prove real channel ID mapping or playable live handoff."
+    },
+    {
+      "purpose": "catchup_event",
+      "routeName": "catchupstream",
+      "uriShape": "digitv://catchupstream/<epgItem>/<id>/<name>/<logo>",
+      "result": "route_verified",
+      "evidence": "ADB delivered digitv://catchupstream/fake-epg/fake-channel/Fake%20Programme/fake-logo to the running provider app. The provider foregrounded ro.digionline.tv/.MainActivity and displayed its own generic error state. A later synthetic candidate probe delivered digitv://catchupstream/epg-20260517-rtp1-1505/evt-rtp1-1505/O%20Diabo%20Veste%20Prada/rtp1-logo, and summary.txt recorded Route probe status ok, Android Status ok, Activity ro.digionline.tv/.MainActivity, foreground evidence from activity plus window-manager focus, and the provider's own generic error text.",
+      "sensitiveData": "none",
+      "notes": "This proves the route handler shape with fake data. It does not prove which real metadata fields map to epgItem, id, name, or logo."
+    }
+  ]
+}

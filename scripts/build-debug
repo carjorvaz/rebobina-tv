@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+
+export NIXPKGS_ACCEPT_ANDROID_SDK_LICENSE=1
+
+if [[ -n "${ANDROID_HOME:-}" && -d "${ANDROID_HOME}" ]]; then
+  exec gradle :app:assembleDebug
+fi
+
+exec nix develop "${repo_root}#android" --impure --command gradle :app:assembleDebug

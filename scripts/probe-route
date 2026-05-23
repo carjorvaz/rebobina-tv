@@ -1,0 +1,172 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+target_package="ro.digionline.tv"
+adb_serial="${ANDROID_SERIAL:-${ADB_SERIAL:-}}"
+route=""
+label=""
+
+usage() {
+  cat <<'USAGE' >&2
+usage: scripts/probe-route [--serial SERIAL] 'digitv://catchup' [label]
+
+Starts a provider deep link, captures local evidence under captures/, and writes
+a compact summary.txt. Captures may include account UI; keep captures/ ignored.
+USAGE
+}
+
+slugify() {
+  tr '[:upper:]' '[:lower:]' \
+    | sed -E 's#^[a-z][a-z0-9+.-]*://##; s#[^a-z0-9._-]+#-#g; s#(^-|-$)##g'
+}
+
+fail() {
+  echo "probe-route: $*" >&2
+  exit 1
+}
+
+while [[ $# -gt 0 ]]; do
+  case "$1" in
+    "--serial")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--serial requires a device serial"
+      adb_serial="$1"
+      ;;
+    "-h"|"--help")
+      usage
+      exit 0
+      ;;
+    *)
+      if [[ -z "${route}" ]]; then
+        route="$1"
+      elif [[ -z "${label}" ]]; then
+        label="$1"
+      else
+        usage
+        fail "too many arguments"
+      fi
+      ;;
+  esac
+  shift
+done
+
+if [[ -z "${route}" ]]; then
+  usage
+  exit 2
+fi
+
+command -v adb >/dev/null 2>&1 || fail "adb is not available"
+
+if [[ -z "${adb_serial}" ]]; then
+  if ! devices_output="$(adb devices 2>&1)"; then
+    fail "adb devices failed: ${devices_output}"
+  fi
+  connected_devices="$(printf '%s\n' "${devices_output}" | awk '$2 == "device" { print $1 }')"
+  device_count="$(printf '%s\n' "${connected_devices}" | sed '/^$/d' | wc -l | tr -d ' ')"
+  case "${device_count}" in
+    "0")
+      fail "no adb device in device state"
+      ;;
+    "1")
+      adb_serial="${connected_devices}"
+      ;;
+    *)
+      fail "multiple adb devices found; pass --serial"
+      ;;
+  esac
+fi
+
+adb_cmd=(adb -s "${adb_serial}")
+
+if ! adb_state="$("${adb_cmd[@]}" get-state 2>&1)"; then
+  fail "adb get-state failed for ${adb_serial}: ${adb_state}"
+fi
+[[ "${adb_state}" == "device" ]] || fail "adb device ${adb_serial} state is ${adb_state}"
+
+if [[ -z "${label}" ]]; then
+  label="$(printf '%s' "$route" | slugify)"
+fi
+
+stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+capture_dir="${repo_root}/captures/${stamp}-${label}"
+mkdir -p "$capture_dir"
+
+{
+  echo "route=${route}"
+  echo "label=${label}"
+  echo "captured_at_utc=${stamp}"
+} > "${capture_dir}/meta.txt"
+
+"${adb_cmd[@]}" shell am start -W \
+  -a android.intent.action.VIEW \
+  -d "$route" \
+  "${target_package}" \
+  > "${capture_dir}/am-start.txt" 2>&1 || true
+
+sleep 3
+
+"${adb_cmd[@]}" shell uiautomator dump /sdcard/rebobina-probe.xml \
+  > "${capture_dir}/uiautomator-dump.txt" 2>&1 || true
+"${adb_cmd[@]}" exec-out cat /sdcard/rebobina-probe.xml \
+  > "${capture_dir}/window.xml" 2>/dev/null || true
+"${adb_cmd[@]}" exec-out screencap -p \
+  > "${capture_dir}/screenshot.png" 2>/dev/null || true
+"${adb_cmd[@]}" shell dumpsys activity activities \
+  > "${capture_dir}/activity.txt" 2>/dev/null || true
+"${adb_cmd[@]}" shell dumpsys window windows \
+  > "${capture_dir}/window-manager.txt" 2>/dev/null || true
+
+start_status="$(grep -m 1 "Status:" "${capture_dir}/am-start.txt" || true)"
+activity_line="$(grep -m 1 "Activity:" "${capture_dir}/am-start.txt" || true)"
+resumed_activity="$(grep -m 1 "mResumedActivity:" "${capture_dir}/activity.txt" || true)"
+window_focus="$(
+  grep -E -m 1 "(mTopFullscreenOpaqueWindowState|imeLayeringTarget|imeInputTarget).*${target_package}/|Window #[0-9]+ Window\\{[^}]* ${target_package}/" \
+    "${capture_dir}/window-manager.txt" || true
+)"
+
+route_probe_status="failed"
+if printf '%s\n' "${start_status}" | grep -q "Status: ok"; then
+  route_probe_status="ok"
+fi
+
+foreground_status="wrong_foreground"
+foreground_evidence=""
+if printf '%s\n' "${resumed_activity}" | grep -Fq "${target_package}/"; then
+  foreground_status="ok"
+  foreground_evidence="activity"
+elif [[ -n "${window_focus}" ]]; then
+  foreground_status="ok"
+  foreground_evidence="window_manager"
+elif grep -Fq "package=\"${target_package}\"" "${capture_dir}/window.xml"; then
+  foreground_status="ok"
+  foreground_evidence="uiautomator"
+fi
+
+cat > "${capture_dir}/summary.txt" <<SUMMARY
+Route probe captured at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
+ADB serial: ${adb_serial}
+Target package: ${target_package}
+Route: ${route}
+Label: ${label}
+Route probe status: ${route_probe_status}
+Start status: ${start_status}
+Start activity: ${activity_line}
+Foreground status: ${foreground_status}
+Foreground evidence: ${foreground_evidence}
+Foreground activity: ${resumed_activity}
+Window focus: ${window_focus}
+
+Files:
+- meta.txt
+- am-start.txt
+- uiautomator-dump.txt
+- window.xml
+- screenshot.png
+- activity.txt
+- window-manager.txt
+
+Review screenshots and dumps before sharing them. They may include account UI.
+SUMMARY
+
+echo "${capture_dir}"

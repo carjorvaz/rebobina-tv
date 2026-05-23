@@ -1,0 +1,212 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/normalize-synthetic-provider-metadata INPUT.json [OUTPUT.json]
+
+Normalizes the synthetic provider metadata fixture into Rebobina's catalog
+shape. This tool intentionally accepts only the repo's synthetic fixture marker;
+do not use it for raw provider responses.
+USAGE
+}
+
+if [[ "${1:-}" == "-h" || "${1:-}" == "--help" ]]; then
+  usage
+  exit 0
+fi
+
+input="${1:-}"
+output="${2:-}"
+
+if [[ -z "${input}" ]]; then
+  usage >&2
+  exit 1
+fi
+
+if [[ ! -f "${input}" ]]; then
+  echo "normalize-synthetic-provider-metadata: missing input file: ${input}" >&2
+  exit 1
+fi
+
+jq_filter='
+  def trim_text:
+    tostring | gsub("^[[:space:]]+|[[:space:]]+$"; "");
+
+  def slug:
+    ascii_downcase
+    | gsub("[^a-z0-9]+"; "-")
+    | gsub("^-+|-+$"; "")
+    | if . == "" then "unknown" else . end;
+
+  def display_time:
+    if (length >= 16 and .[10:11] == "T") then .[11:16]
+    elif length >= 5 then .[0:5]
+    else ""
+    end;
+
+  def normalize_kind:
+    ascii_downcase as $kind
+    | if ($kind == "movie" or $kind == "filme") then "movie"
+      elif ($kind == "sport" or $kind == "desporto") then "sport"
+      elif ($kind == "series" or $kind == "serie") then "series"
+      elif ($kind == "news" or $kind == "informacao") then "news"
+      elif . == "" then "programme"
+      else .
+      end;
+
+  def display_kind:
+    if . == "movie" then "Filme"
+    elif . == "sport" then "Desporto"
+    elif . == "series" then "Serie"
+    elif . == "news" then "Informacao"
+    else "Programa"
+    end;
+
+  def number_from_label:
+    (tostring | match("[0-9]+")? | .string | tonumber) // null;
+
+  def accent_for_kind:
+    if . == "movie" then "#5E7CE2"
+    elif . == "sport" then "#2D9CDB"
+    elif . == "series" then "#F2994A"
+    elif . == "news" then "#27AE60"
+    else "#E5B84D"
+    end;
+
+  def compact_badge:
+    split(" ")
+    | map(select(. != "") | .[0:1] | ascii_upcase)
+    | join("")
+    | .[0:3]
+    | if . == "" then "TV" else . end;
+
+  def event_key($channel_id; $event_id):
+    "\($channel_id | trim_text)|\($event_id | trim_text)";
+
+  def route($root; $segments):
+    "digitv://\($root | trim_text)/\($segments | map(tostring | trim_text | @uri) | join("/"))";
+
+  def catchup_candidate_route($fields):
+    if $fields == null then
+      ""
+    else
+      [$fields.epgItem, $fields.id, $fields.name, $fields.logo] as $segments
+      | if all($segments[]; . != null and ((tostring | trim_text) != "")) then
+          route("catchupstream"; $segments)
+        else
+          ""
+        end
+    end;
+
+  def neighbour_entries:
+    sort_by(.season, .episode, .dayId, .start) as $ordered
+    | [
+        range(0; $ordered | length) as $index
+        | {
+            id: $ordered[$index].id,
+            previousProgrammeId: (
+              if $index > 0 then $ordered[$index - 1].id else "" end
+            ),
+            nextProgrammeId: (
+              if ($index + 1) < ($ordered | length) then
+                $ordered[$index + 1].id
+              else
+                ""
+              end
+            )
+          }
+      ];
+
+  if .generatedFor != "Rebobina synthetic provider metadata fixture" then
+    error("input is not the Rebobina synthetic provider metadata fixture")
+  else
+    . as $root
+    | INDEX(($root.eventDetails // [])[]; event_key(.common_id; .id)) as $details
+    | [
+        $root.dates[] as $date
+        | $date.channels[] as $channel
+        | $channel.events[] as $event
+        | ($event.common_id // $channel.common_id) as $channel_id
+        | ($details[event_key($channel_id; $event.id)] // {}) as $detail
+        | (($detail.seasonLabel // "") | if . == "" then ($event.seasonLabel // "") else . end) as $season_label
+        | (($detail.episodeLabel // "") | if . == "" then ($event.episodeLabel // "") else . end) as $episode_label
+        | (($detail.category // "") | if . == "" then ($event.category // "") else . end | normalize_kind) as $kind
+        | (($event.labels // []) | if length > 0 then .[0] else "" end) as $first_label
+        | {
+            id: "provider-\($channel_id | slug)-\($event.id | slug)",
+            dayId: $date.date,
+            channelId: $channel_id,
+            start: (($event.start_time // "") | display_time),
+            end: (($event.end_time // "") | display_time),
+            title: (($detail.title // "") | if . == "" then $event.title else . end),
+            subtitle: ($first_label | if . == "" then ($kind | display_kind) else . end),
+            kind: $kind,
+            seriesTitle: (($detail.seriesTitle // "") | if . == "" then ($event.seriesTitle // "") else . end),
+            season: ($season_label | number_from_label),
+            episode: ($episode_label | number_from_label),
+            description: (($detail.description // "") | if . == "" then ($event.description // "") else . end),
+            progressPercent: (
+              if ($detail | length) > 0 then
+                ($detail.watchInfo.progress // $detail.progress // 0)
+              else
+                ($event.watchInfo.progress // $event.progress // 0)
+              end
+            ),
+            previousProgrammeId: "",
+            nextProgrammeId: "",
+            providerRoute: ($event.providerRoute // "digitv://u7d"),
+            candidateProviderRoute: (
+              catchup_candidate_route($detail.routeFields.catchupstream // $event.routeFields.catchupstream // null)
+            ),
+            accent: ($kind | accent_for_kind)
+          }
+      ] as $programmes
+    | (
+        $programmes
+        | map(select(.seriesTitle != "" and .season != null and .episode != null))
+        | group_by((.seriesTitle | ascii_downcase) + "|" + (.season | tostring))
+        | map(neighbour_entries)
+        | add // []
+        | INDEX(.id)
+      ) as $neighbours
+    | {
+        generatedFor: "Rebobina normalized synthetic provider catalog",
+        sourceGeneratedFor: $root.generatedFor,
+        days: [
+          $root.dates[]
+          | {
+              id: .date,
+              label: (.label // .date),
+              subtitle: (.subtitle // "")
+            }
+        ],
+        channels: (
+          [
+            $root.dates[].channels[] as $channel
+            | {
+                id: $channel.common_id,
+                name: ($channel.name // $channel.common_id),
+                number: ($channel.number // 1),
+                badge: (($channel.badge // "") | if . == "" then (($channel.name // "") | compact_badge) else . end)
+              }
+          ]
+          | unique_by(.id)
+          | sort_by(.number)
+        ),
+        programmes: (
+          $programmes
+          | map(
+              .previousProgrammeId = ($neighbours[.id].previousProgrammeId // "")
+              | .nextProgrammeId = ($neighbours[.id].nextProgrammeId // "")
+            )
+        )
+      }
+  end
+'
+
+if [[ -n "${output}" ]]; then
+  jq "${jq_filter}" "${input}" > "${output}"
+else
+  jq "${jq_filter}" "${input}"
+fi

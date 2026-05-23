@@ -1,0 +1,220 @@
+{
+  "generatedFor": "Rebobina safe local fixture",
+  "days": [
+    {
+      "id": "2026-05-17",
+      "label": "Hoje",
+      "subtitle": "17 Maio"
+    },
+    {
+      "id": "2026-05-16",
+      "label": "Ontem",
+      "subtitle": "16 Maio"
+    },
+    {
+      "id": "2026-05-15",
+      "label": "Sexta",
+      "subtitle": "15 Maio"
+    }
+  ],
+  "channels": [
+    {
+      "id": "rtp1",
+      "name": "RTP 1",
+      "number": 1,
+      "badge": "R1"
+    },
+    {
+      "id": "rtp2",
+      "name": "RTP 2",
+      "number": 2,
+      "badge": "R2"
+    },
+    {
+      "id": "sic",
+      "name": "SIC",
+      "number": 3,
+      "badge": "SIC"
+    },
+    {
+      "id": "tvi",
+      "name": "TVI",
+      "number": 4,
+      "badge": "TVI"
+    },
+    {
+      "id": "sicn",
+      "name": "SIC Notícias",
+      "number": 5,
+      "badge": "SN"
+    }
+  ],
+  "programmes": [
+    {
+      "id": "p-rtp1-devil-prada",
+      "dayId": "2026-05-17",
+      "channelId": "rtp1",
+      "start": "15:05",
+      "end": "17:07",
+      "title": "O Diabo Veste Prada",
+      "subtitle": "Filme",
+      "kind": "movie",
+      "description": "Uma assistente recém-chegada a Nova Iorque descobre o preço de trabalhar para uma das editoras mais exigentes da moda.",
+      "progressPercent": 0,
+      "providerRoute": "digitv://u7d",
+      "accent": "#5E7CE2"
+    },
+    {
+      "id": "p-rtp1-football",
+      "dayId": "2026-05-17",
+      "channelId": "rtp1",
+      "start": "17:07",
+      "end": "19:15",
+      "title": "Futebol: Final Taça de Portugal Feminina",
+      "subtitle": "SL Benfica x FC Porto",
+      "kind": "sport",
+      "description": "Transmissão da final, com contexto pré-jogo, relato e análise.",
+      "progressPercent": 0,
+      "providerRoute": "digitv://epg",
+      "accent": "#2D9CDB"
+    },
+    {
+      "id": "p-rtp2-gym",
+      "dayId": "2026-05-17",
+      "channelId": "rtp2",
+      "start": "15:00",
+      "end": "17:30",
+      "title": "Taça do Mundo de Ginástica Rítmica",
+      "subtitle": "Fig World Challenge Cup",
+      "kind": "sport",
+      "description": "Rotinas individuais e de conjunto numa tarde dedicada à ginástica rítmica.",
+      "progressPercent": 0,
+      "providerRoute": "digitv://epg",
+      "accent": "#56CCF2"
+    },
+    {
+      "id": "p-sic-domingao-e19",
+      "dayId": "2026-05-17",
+      "channelId": "sic",
+      "start": "15:00",
+      "end": "20:00",
+      "title": "Domingão",
+      "subtitle": "Especial de domingo",
+      "kind": "series",
+      "seriesTitle": "Domingão",
+      "season": 17,
+      "episode": 19,
+      "description": "Música popular, convidados, passatempo e reportagem em direto de várias zonas do país.",
+      "progressPercent": 34,
+      "previousProgrammeId": "p-sic-domingao-e18",
+      "nextProgrammeId": "p-sic-domingao-e20",
+      "providerRoute": "digitv://u7d",
+      "accent": "#F2994A"
+    },
+    {
+      "id": "p-tvi-funtastico-e04",
+      "dayId": "2026-05-17",
+      "channelId": "tvi",
+      "start": "15:00",
+      "end": "19:00",
+      "title": "Funtástico",
+      "subtitle": "Convidados e histórias da semana",
+      "kind": "series",
+      "seriesTitle": "Funtástico",
+      "season": 4,
+      "episode": 4,
+      "description": "Programa de entretenimento com entrevistas, atuações e momentos de humor.",
+      "progressPercent": 0,
+      "previousProgrammeId": "p-tvi-funtastico-e03",
+      "nextProgrammeId": "p-tvi-funtastico-e05",
+      "providerRoute": "digitv://u7d",
+      "accent": "#BB6BD9"
+    },
+    {
+      "id": "p-sicn-60min",
+      "dayId": "2026-05-17",
+      "channelId": "sicn",
+      "start": "15:02",
+      "end": "15:55",
+      "title": "60 Minutos",
+      "subtitle": "Magazine informativo",
+      "kind": "news",
+      "description": "Reportagens internacionais, investigação e entrevistas de fundo.",
+      "progressPercent": 72,
+      "providerRoute": "digitv://epg",
+      "accent": "#27AE60"
+    },
+    {
+      "id": "p-sic-domingao-e18",
+      "dayId": "2026-05-16",
+      "channelId": "sic",
+      "start": "15:00",
+      "end": "20:00",
+      "title": "Domingão",
+      "subtitle": "Episódio anterior",
+      "kind": "series",
+      "seriesTitle": "Domingão",
+      "season": 17,
+      "episode": 18,
+      "description": "A emissão anterior do programa de domingo, com música e convidados.",
+      "progressPercent": 100,
+      "nextProgrammeId": "p-sic-domingao-e19",
+      "providerRoute": "digitv://u7d",
+      "accent": "#F2994A"
+    },
+    {
+      "id": "p-sic-domingao-e20",
+      "dayId": "2026-05-15",
+      "channelId": "sic",
+      "start": "15:00",
+      "end": "20:00",
+      "title": "Domingão",
+      "subtitle": "Próximo episódio disponível",
+      "kind": "series",
+      "seriesTitle": "Domingão",
+      "season": 17,
+      "episode": 20,
+      "description": "Outro episódio disponível no arquivo de catch-up.",
+      "progressPercent": 0,
+      "previousProgrammeId": "p-sic-domingao-e19",
+      "providerRoute": "digitv://u7d",
+      "accent": "#F2994A"
+    },
+    {
+      "id": "p-tvi-funtastico-e03",
+      "dayId": "2026-05-16",
+      "channelId": "tvi",
+      "start": "15:00",
+      "end": "19:00",
+      "title": "Funtástico",
+      "subtitle": "Episódio anterior",
+      "kind": "series",
+      "seriesTitle": "Funtástico",
+      "season": 4,
+      "episode": 3,
+      "description": "O episódio anterior do programa da tarde.",
+      "progressPercent": 62,
+      "nextProgrammeId": "p-tvi-funtastico-e04",
+      "providerRoute": "digitv://u7d",
+      "accent": "#BB6BD9"
+    },
+    {
+      "id": "p-tvi-funtastico-e05",
+      "dayId": "2026-05-15",
+      "channelId": "tvi",
+      "start": "15:00",
+      "end": "19:00",
+      "title": "Funtástico",
+      "subtitle": "Episódio disponível",
+      "kind": "series",
+      "seriesTitle": "Funtástico",
+      "season": 4,
+      "episode": 5,
+      "description": "Mais um episódio da mesma temporada, pronto para navegação cruzada.",
+      "progressPercent": 0,
+      "previousProgrammeId": "p-tvi-funtastico-e04",
+      "providerRoute": "digitv://u7d",
+      "accent": "#BB6BD9"
+    }
+  ]
+}

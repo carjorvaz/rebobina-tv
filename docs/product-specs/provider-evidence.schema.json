@@ -1,0 +1,95 @@
+{
+  "schemaVersion": 1,
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "providerName",
+    "appPackage",
+    "scheme",
+    "observedDate",
+    "records"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "type": "integer",
+      "const": 1
+    },
+    "providerName": {
+      "type": "string"
+    },
+    "appPackage": {
+      "type": "string"
+    },
+    "scheme": {
+      "type": "string"
+    },
+    "providerAppVersion": {
+      "type": "string"
+    },
+    "device": {
+      "type": "string"
+    },
+    "observedDate": {
+      "type": "string",
+      "description": "Date observed in YYYY-MM-DD form."
+    },
+    "source": {
+      "type": "string"
+    },
+    "records": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "purpose",
+          "routeName",
+          "uriShape",
+          "result",
+          "evidence",
+          "sensitiveData"
+        ],
+        "properties": {
+          "purpose": {
+            "type": "string",
+            "enum": [
+              "live_channel",
+              "content",
+              "catchup_event",
+              "section"
+            ]
+          },
+          "routeName": {
+            "type": "string"
+          },
+          "uriShape": {
+            "type": "string",
+            "description": "Use placeholders such as <contentId>; do not record private values."
+          },
+          "result": {
+            "type": "string",
+            "enum": [
+              "verified_exact",
+              "route_verified",
+              "failed",
+              "unavailable",
+              "unknown"
+            ]
+          },
+          "evidence": {
+            "type": "string"
+          },
+          "sensitiveData": {
+            "type": "string",
+            "enum": [
+              "none",
+              "redacted"
+            ]
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

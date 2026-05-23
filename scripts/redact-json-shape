@@ -1,0 +1,107 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+usage() {
+  cat <<'USAGE'
+Usage: scripts/redact-json-shape INPUT_JSON|- [OUTPUT_JSON]
+
+Summarizes a JSON document by paths, types, counts, and synthetic examples
+without emitting scalar values from the input. Use this for provider metadata
+shape evidence; do not commit raw provider responses.
+
+Pass "-" as INPUT_JSON to read raw JSON from stdin and avoid writing the raw
+response to disk.
+USAGE
+}
+
+fail() {
+  echo "redact-json-shape: $*" >&2
+  exit 1
+}
+
+[[ $# -ge 1 && $# -le 2 ]] || {
+  usage >&2
+  exit 1
+}
+
+input_json="$1"
+output_json="${2:-}"
+
+command -v jq >/dev/null 2>&1 || fail "jq is not available"
+[[ "${input_json}" == "-" || -f "${input_json}" ]] || fail "missing input JSON: ${input_json}"
+
+filter='
+def pathstr($path):
+  if ($path | length) == 0 then
+    "$"
+  else
+    "$" + ($path | map(if type == "number" then "[]" else "." + tostring end) | join(""))
+  end;
+
+def synthetic($types):
+  if $types | index("string") then
+    "redacted-string"
+  elif $types | index("number") then
+    0
+  elif $types | index("boolean") then
+    false
+  elif $types | index("null") then
+    null
+  else
+    "redacted"
+  end;
+
+{
+  generatedFor: "Rebobina redacted metadata shape",
+  rootType: type,
+  arrays: (
+    [((if type == "array" then [] else empty end), paths(type == "array")) as $path |
+      { path: pathstr($path), count: (getpath($path) | length) }]
+    | group_by(.path)
+    | map({
+        path: .[0].path,
+        occurrences: length,
+        observedLengths: (map(.count) | unique | sort)
+      })
+  ),
+  objectFields: (
+    [((if type == "object" then [] else empty end), paths(type == "object")) as $path |
+      getpath($path) | keys_unsorted[] as $field |
+      { path: pathstr($path + [$field]), parent: pathstr($path), field: $field }]
+    | group_by(.path)
+    | map({
+        path: .[0].path,
+        field: .[0].field,
+        parents: (map(.parent) | unique | sort),
+        occurrences: length
+      })
+  ),
+  scalars: (
+    [((if scalars then [] else empty end), paths(scalars)) as $path |
+      getpath($path) as $value |
+      {
+        path: pathstr($path),
+        type: ($value | type),
+        stringLength: (if ($value | type) == "string" then ($value | length) else null end)
+      }]
+    | group_by(.path)
+    | map({
+        path: .[0].path,
+        occurrences: length,
+        types: (map(.type) | unique | sort),
+        stringLengths: (
+          map(.stringLength)
+          | map(select(. != null))
+          | if length == 0 then null else { min: min, max: max } end
+        ),
+        syntheticExample: synthetic(map(.type) | unique | sort)
+      })
+  )
+}
+'
+
+if [[ -n "${output_json}" ]]; then
+  jq "${filter}" "${input_json}" > "${output_json}"
+else
+  jq "${filter}" "${input_json}"
+fi
