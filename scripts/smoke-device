@@ -40,6 +40,7 @@ provider route directly, and writes local evidence under captures/.
 Named flows:
 - channel-watch: day -> channel -> programme -> Watch
 - movie-watch: Filmes -> Todos os filmes -> programme -> Watch
+- provider-movie-watch: provider snapshot -> Filmes -> Todos os filmes -> A Viagem de Chihiro -> Watch
 - series-watch: Séries -> show -> episode -> Watch
 
 Captured screenshots and logs may include account UI. Keep captures/ ignored.
@@ -64,12 +65,24 @@ set_flow_defaults() {
       default_keyevents=(19 19 23 22 22 22 23)
       default_flow_expect_texts=("Filmes" "Todos os filmes" "O Diabo Veste Prada" "Ver")
       ;;
+    "provider-movie-watch")
+      if [[ -z "${catalog_source}" ]]; then
+        catalog_source="provider-snapshot"
+      fi
+      [[ "${catalog_source}" == "provider-snapshot" ]] || fail "provider-movie-watch requires --catalog-source provider-snapshot"
+      default_keyevents=(19 19 23 22 22 20 22 23)
+      default_flow_expect_texts=("Filmes" "Todos os filmes" "A Viagem de Chihiro" "RTP 2" "Ver")
+      if [[ "${app_expect_text_count}" -gt 0 ]]; then
+        app_expect_texts+=("metadados sintéticos")
+        app_expect_text_count=$((app_expect_text_count + 1))
+      fi
+      ;;
     "series-watch")
       default_keyevents=(19 23 22 22 22 23)
       default_flow_expect_texts=("Séries" "Domingão" "T17 E18" "Ver")
       ;;
     *)
-      fail "unknown --flow: ${flow}; expected channel-watch, movie-watch, or series-watch"
+      fail "unknown --flow: ${flow}; expected channel-watch, movie-watch, provider-movie-watch, or series-watch"
       ;;
   esac
 

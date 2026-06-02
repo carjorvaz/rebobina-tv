@@ -158,7 +158,15 @@ catalog source:
 scripts/smoke-device --serial SERIAL --skip-build --flow channel-watch \
   --catalog-source provider-snapshot --app-expect-text "metadados sintéticos" \
   --no-route-probe
+
+# Stronger provider-snapshot discovery proof: navigate through Filmes and select
+# the RTP2 movie whose category/title/description come from eventDetails.
+scripts/smoke-device --serial SERIAL --skip-build --flow provider-movie-watch \
+  --no-route-probe
 ```
 
 The smoke records `Catalog source: provider-snapshot` in `summary.txt`; default
 launcher/smoke runs should continue to report `Catalog source: default-fixture`.
+The named `provider-movie-watch` flow automatically selects `provider-snapshot`
+and asserts `A Viagem de Chihiro`/`RTP 2` before pressing `Ver`, keeping the
+active handoff route on the broad official `digitv://u7d` path.

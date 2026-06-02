@@ -599,6 +599,12 @@ grep -q -- "--catalog-source" "${repo_root}/scripts/smoke-device" \
 grep -q "rebobina.catalog_source" "${repo_root}/scripts/smoke-device" \
   || fail "scripts/smoke-device must pass the catalog source intent extra when requested"
 
+grep -q "provider-movie-watch" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must include a provider-snapshot movie reachability flow"
+
+grep -q "A Viagem de Chihiro" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device provider movie flow must assert the detail-derived RTP2 movie"
+
 grep -q "UI keyevents" "${repo_root}/scripts/smoke-device" \
   || fail "scripts/smoke-device must report remote key sequence"
 

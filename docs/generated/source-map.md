@@ -57,8 +57,8 @@ or stream URLs.
 | `scripts/probe-route` | 172 | Direct provider deep-link probe. |
 | `scripts/probe-sections` | 20 | Broad provider section route probe. |
 | `scripts/redact-json-shape` | 107 | Provider metadata shape redactor. |
-| `scripts/smoke-device` | 522 | Android TV smoke harness and capture workflow. |
-| `scripts/validate` | 692 | Fast local repository validation harness. |
+| `scripts/smoke-device` | 535 | Android TV smoke harness and capture workflow. |
+| `scripts/validate` | 698 | Fast local repository validation harness. |
 
 ## Knowledge Base
 
@@ -67,13 +67,13 @@ or stream URLs.
 | `docs/QUALITY.md` | 24 | Quality scorecard and remaining gaps. |
 | `docs/RELIABILITY.md` | 48 | Reliability expectations and observation rules. |
 | `docs/SECURITY.md` | 56 | Provider, credential, and playback safety boundary. |
-| `docs/VALIDATION.md` | 164 | Validation commands and when to run them. |
+| `docs/VALIDATION.md` | 172 | Validation commands and when to run them. |
 | `docs/design-docs/core-beliefs.md` | 28 | Design principles and harness-engineering notes. |
 | `docs/design-docs/harness-engineering.md` | 66 | Design principles and harness-engineering notes. |
 | `docs/design-docs/index.md` | 9 | Design principles and harness-engineering notes. |
 | `docs/exec-plans/active/README.md` | 7 | In-progress execution plans. |
 | `docs/exec-plans/active/family-catchup-ux-harness.md` | 160 | In-progress execution plans. |
-| `docs/exec-plans/active/metadata-adapter-proof.md` | 59 | In-progress execution plans. |
+| `docs/exec-plans/active/metadata-adapter-proof.md` | 60 | In-progress execution plans. |
 | `docs/exec-plans/completed/2026-05-17-device-evidence-harness.md` | 68 | Completed decision logs. |
 | `docs/exec-plans/completed/2026-05-17-fixture-gallery.md` | 42 | Completed decision logs. |
 | `docs/exec-plans/completed/2026-05-17-repository-harness.md` | 29 | Completed decision logs. |
