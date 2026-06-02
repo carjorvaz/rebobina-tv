@@ -70,12 +70,21 @@ scripts/smoke-device
 ```
 
 This builds and installs the debug APK, opens Rebobina, verifies stable local
-gallery text, drives the TV focus path from day to channel to programme to
-Watch, verifies the `RebobinaHandoff` log for `digitv://u7d`, asserts that the
-provider app becomes the visible TV window, probes stable non-sensitive
-destination text, asserts that the direct `digitv://catchup` control probe
-returns `Status: ok`, and writes screenshots plus logcat under ignored
-`captures/`.
+gallery text, drives a named TV focus path to the Watch action, captures a
+pre-handoff Rebobina checkpoint for that flow, verifies the `RebobinaHandoff`
+log for `digitv://u7d`, waits for the official provider app to settle, asserts
+that the provider app becomes the visible TV window, probes stable
+non-sensitive destination text, asserts that the direct `digitv://catchup`
+control probe returns `Status: ok`, and writes screenshots plus logcat under
+ignored `captures/`.
+
+The default UI flow is `channel-watch`. Representative family-facing presets:
+
+```sh
+scripts/smoke-device --flow channel-watch
+scripts/smoke-device --flow movie-watch --skip-build --no-route-probe
+scripts/smoke-device --flow series-watch --skip-build --no-route-probe
+```
 
 Useful variants:
 
@@ -84,9 +93,12 @@ scripts/smoke-device --skip-build
 scripts/smoke-device --no-ui-smoke
 scripts/smoke-device --app-expect-text Rebobina
 scripts/smoke-device --no-app-text-assert
+scripts/smoke-device --flow-expect-text Domingão
+scripts/smoke-device --no-flow-text-assert
 scripts/smoke-device --clear-ui-keyevents --ui-keyevent 23
+scripts/smoke-device --handoff-wait-seconds 12
 scripts/smoke-device --ui-route 'digitv://u7d'
-scripts/smoke-device --ui-expect-text Flashback
+scripts/smoke-device --ui-expect-text 'Bem-vindo à DIGI TV'
 scripts/smoke-device --no-ui-text-assert
 scripts/smoke-device --route 'digitv://content/<contentId>/<channelId>'
 scripts/smoke-device --no-route-probe
