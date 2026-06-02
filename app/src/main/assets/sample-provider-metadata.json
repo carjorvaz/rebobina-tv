@@ -44,6 +44,35 @@
           ]
         },
         {
+          "common_id": "rtp2",
+          "name": "RTP 2",
+          "number": 2,
+          "badge": "R2",
+          "events": [
+            {
+              "id": "evt-rtp2-2015",
+              "common_id": "rtp2",
+              "start_time": "2026-05-17T20:15:00+01:00",
+              "end_time": "2026-05-17T22:20:00+01:00",
+              "title": "Cinema de Domingo",
+              "category": "",
+              "description": "",
+              "routeFields": {
+                "catchupstream": {
+                  "epgItem": "epg-20260517-rtp2-2015",
+                  "id": "evt-rtp2-2015",
+                  "name": "A Viagem de Chihiro",
+                  "logo": "rtp2-logo"
+                }
+              },
+              "watchInfo": {
+                "progress": 0,
+                "duration": 125
+              }
+            }
+          ]
+        },
+        {
           "common_id": "sic",
           "name": "SIC",
           "number": 3,
@@ -166,6 +195,18 @@
       "available_end": "2026-05-24T20:00:00+01:00",
       "watchInfo": {
         "progress": 34
+      }
+    },
+    {
+      "id": "evt-rtp2-2015",
+      "common_id": "rtp2",
+      "title": "A Viagem de Chihiro",
+      "category": "movie",
+      "description": "Uma jovem atravessa um mundo fantastico e aprende a encontrar coragem longe de casa.",
+      "available_start": "2026-05-17T22:20:00+01:00",
+      "available_end": "2026-05-24T22:20:00+01:00",
+      "watchInfo": {
+        "progress": 0
       }
     }
   ]

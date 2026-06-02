@@ -26,6 +26,12 @@
       "badge": "R1"
     },
     {
+      "id": "rtp2",
+      "name": "RTP 2",
+      "number": 2,
+      "badge": "R2"
+    },
+    {
       "id": "sic",
       "name": "SIC",
       "number": 3,
@@ -51,6 +57,26 @@
       "nextProgrammeId": "",
       "providerRoute": "digitv://u7d",
       "candidateProviderRoute": "digitv://catchupstream/epg-20260517-rtp1-1505/evt-rtp1-1505/O%20Diabo%20Veste%20Prada/rtp1-logo",
+      "accent": "#5E7CE2"
+    },
+    {
+      "id": "provider-rtp2-evt-rtp2-2015",
+      "dayId": "2026-05-17",
+      "channelId": "rtp2",
+      "start": "20:15",
+      "end": "22:20",
+      "title": "A Viagem de Chihiro",
+      "subtitle": "Filme",
+      "kind": "movie",
+      "seriesTitle": "",
+      "season": null,
+      "episode": null,
+      "description": "Uma jovem atravessa um mundo fantastico e aprende a encontrar coragem longe de casa.",
+      "progressPercent": 0,
+      "previousProgrammeId": "",
+      "nextProgrammeId": "",
+      "providerRoute": "digitv://u7d",
+      "candidateProviderRoute": "digitv://catchupstream/epg-20260517-rtp2-2015/evt-rtp2-2015/A%20Viagem%20de%20Chihiro/rtp2-logo",
       "accent": "#5E7CE2"
     },
     {

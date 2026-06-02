@@ -29,8 +29,8 @@ the official provider app.
    consistency.
 4. Prove date and programme mapping into `CatchupDay` and `CatchupProgramme`.
    Synthetic proof added through `ProviderMetadataSnapshotParser`; validation
-   checks timing, progress, event-detail references, and the host-side
-   normalized catalog reference.
+   checks timing, progress, event-detail references, detail-derived discovery
+   category overrides, and the host-side normalized catalog reference.
 5. Prove whether season and episode neighbours are explicit or must be inferred.
    Synthetic proof currently infers neighbours by series title, season, and
    episode labels; validation requires the E18/E19/E20 chain and regenerated

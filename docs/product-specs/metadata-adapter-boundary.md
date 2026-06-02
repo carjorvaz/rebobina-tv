@@ -144,9 +144,10 @@ candidate route shape but returns its own error state, so this remains
 route-shape evidence rather than exact playable-item proof.
 
 Validation keeps the synthetic proof honest by checking source-shape labels,
-channel/event identity consistency, event-detail references, normalizable timing
-and progress, the synthetic E18/E19/E20 neighbour chain, synthetic exact-route
-candidate fields, and the checked-in host-side normalized catalog reference.
+channel/event identity consistency, event-detail references, event-detail-derived
+movie/series discovery category overrides, normalizable timing and progress, the
+synthetic E18/E19/E20 neighbour chain, synthetic exact-route candidate fields,
+and the checked-in host-side normalized catalog reference.
 
 The synthetic parser deliberately keeps `digitv://u7d` as the default Watch
 route until exact event/content routes have separate field-mapping evidence.

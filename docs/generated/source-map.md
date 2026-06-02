@@ -33,7 +33,7 @@ or stream URLs.
 | --- | ---: | --- |
 | `app/src/main/AndroidManifest.xml` | 37 | Android TV launcher and app declaration. |
 | `app/src/main/assets/sample-catchup.json` | 220 | Safe local catch-up catalog fixture. |
-| `app/src/main/assets/sample-provider-metadata.json` | 172 | Synthetic provider-shaped metadata fixture. |
+| `app/src/main/assets/sample-provider-metadata.json` | 213 | Synthetic provider-shaped metadata fixture. |
 | `app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt` | 192 | Normalized catalog models, fixture source, and JSON parser. |
 | `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 1135 | Android TV gallery UI, focus routing, and provider handoff. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt` | 224 | Synthetic provider metadata source and normalizer proof. |
@@ -58,7 +58,7 @@ or stream URLs.
 | `scripts/probe-sections` | 20 | Broad provider section route probe. |
 | `scripts/redact-json-shape` | 107 | Provider metadata shape redactor. |
 | `scripts/smoke-device` | 511 | Android TV smoke harness and capture workflow. |
-| `scripts/validate` | 651 | Fast local repository validation harness. |
+| `scripts/validate` | 674 | Fast local repository validation harness. |
 
 ## Knowledge Base
 
@@ -72,7 +72,7 @@ or stream URLs.
 | `docs/design-docs/harness-engineering.md` | 66 | Design principles and harness-engineering notes. |
 | `docs/design-docs/index.md` | 9 | Design principles and harness-engineering notes. |
 | `docs/exec-plans/active/README.md` | 7 | In-progress execution plans. |
-| `docs/exec-plans/active/family-catchup-ux-harness.md` | 158 | In-progress execution plans. |
+| `docs/exec-plans/active/family-catchup-ux-harness.md` | 160 | In-progress execution plans. |
 | `docs/exec-plans/active/metadata-adapter-proof.md` | 56 | In-progress execution plans. |
 | `docs/exec-plans/completed/2026-05-17-device-evidence-harness.md` | 68 | Completed decision logs. |
 | `docs/exec-plans/completed/2026-05-17-fixture-gallery.md` | 42 | Completed decision logs. |
@@ -84,11 +84,11 @@ or stream URLs.
 | `docs/legal-publication-notes.md` | 153 | Repository support file. |
 | `docs/product-specs/catch-up-handoff-gallery.md` | 100 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/index.md` | 16 | Product specs, adapter boundary, and provider evidence. |
-| `docs/product-specs/metadata-adapter-boundary.md` | 152 | Product specs, adapter boundary, and provider evidence. |
+| `docs/product-specs/metadata-adapter-boundary.md` | 153 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence.schema.json` | 95 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json` | 80 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence/README.md` | 18 | Product specs, adapter boundary, and provider evidence. |
 | `docs/references/README.md` | 15 | Safe reference outputs and generated metadata contracts. |
-| `docs/references/synthetic-provider-metadata-shape.json` | 765 | Safe reference outputs and generated metadata contracts. |
-| `docs/references/synthetic-provider-normalized-catalog.json` | 117 | Safe reference outputs and generated metadata contracts. |
+| `docs/references/synthetic-provider-metadata-shape.json` | 845 | Safe reference outputs and generated metadata contracts. |
+| `docs/references/synthetic-provider-normalized-catalog.json` | 143 | Safe reference outputs and generated metadata contracts. |
 | `docs/research-notes.md` | 193 | Chronological research and device-observation notes. |

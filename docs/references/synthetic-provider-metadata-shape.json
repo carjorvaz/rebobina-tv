@@ -14,12 +14,12 @@
       "occurrences": 3,
       "observedLengths": [
         1,
-        2
+        3
       ]
     },
     {
       "path": "$.dates[].channels[].events",
-      "occurrences": 4,
+      "occurrences": 5,
       "observedLengths": [
         1
       ]
@@ -35,7 +35,7 @@
       "path": "$.eventDetails",
       "occurrences": 1,
       "observedLengths": [
-        1
+        2
       ]
     },
     {
@@ -64,12 +64,20 @@
       "occurrences": 3
     },
     {
+      "path": "$.dates[].channels[].badge",
+      "field": "badge",
+      "parents": [
+        "$.dates[].channels[]"
+      ],
+      "occurrences": 1
+    },
+    {
       "path": "$.dates[].channels[].common_id",
       "field": "common_id",
       "parents": [
         "$.dates[].channels[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events",
@@ -77,7 +85,7 @@
       "parents": [
         "$.dates[].channels[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].category",
@@ -85,7 +93,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].common_id",
@@ -93,7 +101,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].description",
@@ -101,7 +109,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].end_time",
@@ -109,7 +117,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].episodeLabel",
@@ -125,7 +133,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].labels",
@@ -141,7 +149,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream",
@@ -149,7 +157,7 @@
       "parents": [
         "$.dates[].channels[].events[].routeFields"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream.epgItem",
@@ -157,7 +165,7 @@
       "parents": [
         "$.dates[].channels[].events[].routeFields.catchupstream"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream.id",
@@ -165,7 +173,7 @@
       "parents": [
         "$.dates[].channels[].events[].routeFields.catchupstream"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream.logo",
@@ -173,7 +181,7 @@
       "parents": [
         "$.dates[].channels[].events[].routeFields.catchupstream"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream.name",
@@ -181,7 +189,7 @@
       "parents": [
         "$.dates[].channels[].events[].routeFields.catchupstream"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].seasonLabel",
@@ -205,7 +213,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].title",
@@ -213,7 +221,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].watchInfo",
@@ -221,7 +229,7 @@
       "parents": [
         "$.dates[].channels[].events[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].watchInfo.duration",
@@ -229,7 +237,7 @@
       "parents": [
         "$.dates[].channels[].events[].watchInfo"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].events[].watchInfo.progress",
@@ -237,7 +245,7 @@
       "parents": [
         "$.dates[].channels[].events[].watchInfo"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].name",
@@ -245,7 +253,7 @@
       "parents": [
         "$.dates[].channels[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].channels[].number",
@@ -253,7 +261,7 @@
       "parents": [
         "$.dates[].channels[]"
       ],
-      "occurrences": 4
+      "occurrences": 5
     },
     {
       "path": "$.dates[].date",
@@ -293,11 +301,19 @@
       "parents": [
         "$.eventDetails[]"
       ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "path": "$.eventDetails[].available_start",
       "field": "available_start",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 2
+    },
+    {
+      "path": "$.eventDetails[].category",
+      "field": "category",
       "parents": [
         "$.eventDetails[]"
       ],
@@ -306,6 +322,14 @@
     {
       "path": "$.eventDetails[].common_id",
       "field": "common_id",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 2
+    },
+    {
+      "path": "$.eventDetails[].description",
+      "field": "description",
       "parents": [
         "$.eventDetails[]"
       ],
@@ -325,11 +349,19 @@
       "parents": [
         "$.eventDetails[]"
       ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "path": "$.eventDetails[].seasonLabel",
       "field": "seasonLabel",
+      "parents": [
+        "$.eventDetails[]"
+      ],
+      "occurrences": 1
+    },
+    {
+      "path": "$.eventDetails[].title",
+      "field": "title",
       "parents": [
         "$.eventDetails[]"
       ],
@@ -341,7 +373,7 @@
       "parents": [
         "$.eventDetails[]"
       ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "path": "$.eventDetails[].watchInfo.progress",
@@ -349,7 +381,7 @@
       "parents": [
         "$.eventDetails[].watchInfo"
       ],
-      "occurrences": 1
+      "occurrences": 2
     },
     {
       "path": "$.generatedFor",
@@ -378,8 +410,20 @@
   ],
   "scalars": [
     {
+      "path": "$.dates[].channels[].badge",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 2,
+        "max": 2
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
       "path": "$.dates[].channels[].common_id",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -391,19 +435,19 @@
     },
     {
       "path": "$.dates[].channels[].events[].category",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
       "stringLengths": {
-        "min": 5,
+        "min": 0,
         "max": 6
       },
       "syntheticExample": "redacted-string"
     },
     {
       "path": "$.dates[].channels[].events[].common_id",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -415,19 +459,19 @@
     },
     {
       "path": "$.dates[].channels[].events[].description",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
       "stringLengths": {
-        "min": 36,
+        "min": 0,
         "max": 99
       },
       "syntheticExample": "redacted-string"
     },
     {
       "path": "$.dates[].channels[].events[].end_time",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -451,7 +495,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].id",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -475,7 +519,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream.epgItem",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -487,7 +531,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream.id",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -499,7 +543,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream.logo",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -511,7 +555,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].routeFields.catchupstream.name",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -547,7 +591,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].start_time",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -559,7 +603,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].title",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -571,7 +615,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].watchInfo.duration",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "number"
       ],
@@ -580,7 +624,7 @@
     },
     {
       "path": "$.dates[].channels[].events[].watchInfo.progress",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "number"
       ],
@@ -589,7 +633,7 @@
     },
     {
       "path": "$.dates[].channels[].name",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "string"
       ],
@@ -601,7 +645,7 @@
     },
     {
       "path": "$.dates[].channels[].number",
-      "occurrences": 4,
+      "occurrences": 5,
       "types": [
         "number"
       ],
@@ -646,7 +690,7 @@
     },
     {
       "path": "$.eventDetails[].available_end",
-      "occurrences": 1,
+      "occurrences": 2,
       "types": [
         "string"
       ],
@@ -658,7 +702,7 @@
     },
     {
       "path": "$.eventDetails[].available_start",
-      "occurrences": 1,
+      "occurrences": 2,
       "types": [
         "string"
       ],
@@ -669,14 +713,38 @@
       "syntheticExample": "redacted-string"
     },
     {
-      "path": "$.eventDetails[].common_id",
+      "path": "$.eventDetails[].category",
       "occurrences": 1,
       "types": [
         "string"
       ],
       "stringLengths": {
+        "min": 5,
+        "max": 5
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].common_id",
+      "occurrences": 2,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
         "min": 3,
-        "max": 3
+        "max": 4
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].description",
+      "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 84,
+        "max": 84
       },
       "syntheticExample": "redacted-string"
     },
@@ -694,12 +762,12 @@
     },
     {
       "path": "$.eventDetails[].id",
-      "occurrences": 1,
+      "occurrences": 2,
       "types": [
         "string"
       ],
       "stringLengths": {
-        "min": 21,
+        "min": 13,
         "max": 21
       },
       "syntheticExample": "redacted-string"
@@ -717,8 +785,20 @@
       "syntheticExample": "redacted-string"
     },
     {
-      "path": "$.eventDetails[].watchInfo.progress",
+      "path": "$.eventDetails[].title",
       "occurrences": 1,
+      "types": [
+        "string"
+      ],
+      "stringLengths": {
+        "min": 19,
+        "max": 19
+      },
+      "syntheticExample": "redacted-string"
+    },
+    {
+      "path": "$.eventDetails[].watchInfo.progress",
+      "occurrences": 2,
       "types": [
         "number"
       ],

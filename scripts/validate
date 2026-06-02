@@ -314,6 +314,17 @@ jq_check "sample-provider-metadata.json must exercise inferred episode neighbour
    ] | sort == [18, 19, 20]' \
   "app/src/main/assets/sample-provider-metadata.json"
 
+jq_check "sample-provider-metadata.json must exercise event-detail discovery category overrides" \
+  '(. as $root |
+    [
+      $root.dates[].channels[].events[] as $event |
+      ($root.eventDetails // [])[] as $detail |
+      select($detail.common_id == $event.common_id and $detail.id == $event.id) |
+      select((($event.category // "") == "") and
+        (($detail.category // "") | ascii_downcase | IN("movie", "filme", "series", "serie")))
+    ] | length > 0)' \
+  "app/src/main/assets/sample-provider-metadata.json"
+
 jq_check "sample-provider-metadata.json must exercise exact route candidate fields" \
   'all(.dates[].channels[].events[];
     (.routeFields.catchupstream.epgItem | type) == "string" and
@@ -481,8 +492,17 @@ printf '%s\n' "${normalized_catalog}" | jq -e \
   '.generatedFor == "Rebobina normalized synthetic provider catalog" and
    .sourceGeneratedFor == "Rebobina synthetic provider metadata fixture" and
    ((.days | length) == 3) and
-   ((.channels | map(.id) | sort) == ["rtp1", "sic"]) and
-   ((.programmes | length) == 4) and
+   ((.channels | map(.id) | sort) == ["rtp1", "rtp2", "sic"]) and
+   ((.programmes | length) == 5) and
+   any(.programmes[];
+     .id == "provider-rtp2-evt-rtp2-2015" and
+     .channelId == "rtp2" and
+     .title == "A Viagem de Chihiro" and
+     .description == "Uma jovem atravessa um mundo fantastico e aprende a encontrar coragem longe de casa." and
+     .subtitle == "Filme" and
+     .kind == "movie" and
+     .providerRoute == "digitv://u7d" and
+     .candidateProviderRoute == "digitv://catchupstream/epg-20260517-rtp2-2015/evt-rtp2-2015/A%20Viagem%20de%20Chihiro/rtp2-logo") and
    any(.programmes[];
      .id == "provider-sic-evt-sic-domingao-1719" and
      .previousProgrammeId == "provider-sic-evt-sic-domingao-1718" and
@@ -493,7 +513,10 @@ printf '%s\n' "${normalized_catalog}" | jq -e \
    any(.programmes[];
      .id == "provider-rtp1-evt-rtp1-1505" and
      .providerRoute == "digitv://u7d" and
-     .candidateProviderRoute == "digitv://catchupstream/epg-20260517-rtp1-1505/evt-rtp1-1505/O%20Diabo%20Veste%20Prada/rtp1-logo")' \
+     .candidateProviderRoute == "digitv://catchupstream/epg-20260517-rtp1-1505/evt-rtp1-1505/O%20Diabo%20Veste%20Prada/rtp1-logo") and
+   all(.programmes[];
+     .providerRoute == "digitv://u7d" and
+     (.candidateProviderRoute | startswith("digitv://catchupstream/")))' \
   >/dev/null || fail "synthetic provider metadata normalization must produce the expected catalog contract"
 
 normalized_reference_check="$(mktemp "${TMPDIR:-/tmp}/rebobina-normalized-reference.XXXXXX.json")"

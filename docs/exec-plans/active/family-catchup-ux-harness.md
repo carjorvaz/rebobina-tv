@@ -87,6 +87,8 @@ This plan follows the OpenAI harness-engineering pattern:
 
 **Objective:** Prove that safe provider metadata can populate the richer UX without committing private responses.
 
+**Status:** Synthetic provider metadata now includes a detail-derived RTP2 movie proof: the schedule event omits its discovery category, `eventDetails` supplies the movie classification/title/description, and the normalized reference shows the item in the same `CatchupCatalog` shape with broad Watch route plus separate exact-route candidate.
+
 **Files:**
 - Modify: `app/src/main/assets/sample-provider-metadata.json`
 - Modify: `app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt`
