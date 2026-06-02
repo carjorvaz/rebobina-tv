@@ -178,8 +178,8 @@ class MainActivity : Activity() {
     ): LinearLayout {
         val list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            clipChildren = false
-            clipToPadding = false
+            clipChildren = true
+            clipToPadding = true
         }
         assign(list)
         val titleView = panelTitle(title)
@@ -189,8 +189,8 @@ class MainActivity : Activity() {
             addView(
                 ScrollView(this@MainActivity).apply {
                     isFillViewport = true
-                    clipChildren = false
-                    clipToPadding = false
+                    clipChildren = true
+                    clipToPadding = true
                     overScrollMode = View.OVER_SCROLL_NEVER
                     addView(list)
                 },
@@ -202,16 +202,16 @@ class MainActivity : Activity() {
     private fun buildDetailPanel(): LinearLayout {
         detailStack = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            clipChildren = false
-            clipToPadding = false
+            clipChildren = true
+            clipToPadding = true
         }
         return panel().apply {
             addView(panelTitle(getString(R.string.details)))
             addView(
                 ScrollView(this@MainActivity).apply {
                     isFillViewport = true
-                    clipChildren = false
-                    clipToPadding = false
+                    clipChildren = true
+                    clipToPadding = true
                     overScrollMode = View.OVER_SCROLL_NEVER
                     addView(detailStack)
                 },
@@ -830,8 +830,6 @@ class MainActivity : Activity() {
     private fun panel(): LinearLayout =
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
-            clipChildren = false
-            clipToPadding = false
             setPadding(dp(14), dp(14), dp(14), dp(14))
             background = rounded("panel")
         }

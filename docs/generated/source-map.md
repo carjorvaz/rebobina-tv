@@ -35,7 +35,7 @@ or stream URLs.
 | `app/src/main/assets/sample-catchup.json` | 220 | Safe local catch-up catalog fixture. |
 | `app/src/main/assets/sample-provider-metadata.json` | 172 | Synthetic provider-shaped metadata fixture. |
 | `app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt` | 192 | Normalized catalog models, fixture source, and JSON parser. |
-| `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 1137 | Android TV gallery UI, focus routing, and provider handoff. |
+| `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 1135 | Android TV gallery UI, focus routing, and provider handoff. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt` | 224 | Synthetic provider metadata source and normalizer proof. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderRoutes.kt` | 43 | Provider deep-link route composition helpers. |
 | `app/src/main/res/drawable/ic_launcher.xml` | 16 | Launcher icon and TV banner resources. |
