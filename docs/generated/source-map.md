@@ -35,7 +35,7 @@ or stream URLs.
 | `app/src/main/assets/sample-catchup.json` | 220 | Safe local catch-up catalog fixture. |
 | `app/src/main/assets/sample-provider-metadata.json` | 172 | Synthetic provider-shaped metadata fixture. |
 | `app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt` | 192 | Normalized catalog models, fixture source, and JSON parser. |
-| `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 1052 | Android TV gallery UI, focus routing, and provider handoff. |
+| `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 1104 | Android TV gallery UI, focus routing, and provider handoff. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt` | 224 | Synthetic provider metadata source and normalizer proof. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderRoutes.kt` | 43 | Provider deep-link route composition helpers. |
 | `app/src/main/res/drawable/ic_launcher.xml` | 16 | Launcher icon and TV banner resources. |
@@ -57,7 +57,7 @@ or stream URLs.
 | `scripts/probe-route` | 172 | Direct provider deep-link probe. |
 | `scripts/probe-sections` | 20 | Broad provider section route probe. |
 | `scripts/redact-json-shape` | 107 | Provider metadata shape redactor. |
-| `scripts/smoke-device` | 443 | Android TV smoke harness and capture workflow. |
+| `scripts/smoke-device` | 511 | Android TV smoke harness and capture workflow. |
 | `scripts/validate` | 651 | Fast local repository validation harness. |
 
 ## Knowledge Base
@@ -67,7 +67,7 @@ or stream URLs.
 | `docs/QUALITY.md` | 24 | Quality scorecard and remaining gaps. |
 | `docs/RELIABILITY.md` | 48 | Reliability expectations and observation rules. |
 | `docs/SECURITY.md` | 56 | Provider, credential, and playback safety boundary. |
-| `docs/VALIDATION.md` | 149 | Validation commands and when to run them. |
+| `docs/VALIDATION.md` | 151 | Validation commands and when to run them. |
 | `docs/design-docs/core-beliefs.md` | 28 | Design principles and harness-engineering notes. |
 | `docs/design-docs/harness-engineering.md` | 66 | Design principles and harness-engineering notes. |
 | `docs/design-docs/index.md` | 9 | Design principles and harness-engineering notes. |

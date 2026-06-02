@@ -74,9 +74,10 @@ gallery text, drives a named TV focus path to the Watch action, captures a
 pre-handoff Rebobina checkpoint for that flow, verifies the `RebobinaHandoff`
 log for `digitv://u7d`, waits for the official provider app to settle, asserts
 that the provider app becomes the visible TV window, probes stable
-non-sensitive destination text, asserts that the direct `digitv://catchup`
-control probe returns `Status: ok`, and writes screenshots plus logcat under
-ignored `captures/`.
+non-sensitive destination text (by default one of the known safe provider markers,
+`Bem-vindo à DIGI TV` or `Ver agora`), asserts that the direct
+`digitv://catchup` control probe returns `Status: ok`, and writes screenshots
+plus logcat under ignored `captures/`.
 
 The default UI flow is `channel-watch`. Representative family-facing presets:
 
@@ -99,6 +100,7 @@ scripts/smoke-device --clear-ui-keyevents --ui-keyevent 23
 scripts/smoke-device --handoff-wait-seconds 12
 scripts/smoke-device --ui-route 'digitv://u7d'
 scripts/smoke-device --ui-expect-text 'Bem-vindo à DIGI TV'
+scripts/smoke-device --ui-expect-any-text 'Ver agora'
 scripts/smoke-device --no-ui-text-assert
 scripts/smoke-device --route 'digitv://content/<contentId>/<channelId>'
 scripts/smoke-device --no-route-probe

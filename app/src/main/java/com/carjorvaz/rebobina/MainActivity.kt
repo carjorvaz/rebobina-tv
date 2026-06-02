@@ -62,6 +62,13 @@ class MainActivity : Activity() {
             return super.dispatchKeyEvent(event)
         }
         return when (event.keyCode) {
+            KeyEvent.KEYCODE_BACK -> {
+                if (handleBackNavigation()) {
+                    true
+                } else {
+                    super.dispatchKeyEvent(event)
+                }
+            }
             KeyEvent.KEYCODE_MENU -> {
                 openProviderRoute("u7d")
                 true
@@ -546,6 +553,51 @@ class MainActivity : Activity() {
         }
         watch?.nextFocusLeftId = selectedProgramme?.id ?: View.NO_ID
         watch?.setHorizontalFocusTargets(left = selectedProgramme, right = null)
+    }
+
+    private fun handleBackNavigation(): Boolean {
+        val current = currentFocus
+        val selectedBrowse = dayRows[selectedFirstRailId()]
+        val selectedGroup = selectedSecondRailId()?.let { channelRows[it] }
+        val selectedProgramme = selectedProgrammeId?.let { programmeRows[it] }
+
+        return when {
+            current.isInDetailStack() ->
+                selectedProgramme.requestFocusIfPresent() ||
+                    selectedGroup.requestFocusIfPresent() ||
+                    selectedBrowse.requestFocusIfPresent()
+            current != null && programmeRows.values.contains(current) ->
+                selectedGroup.requestFocusIfPresent() || selectedBrowse.requestFocusIfPresent()
+            current != null && channelRows.values.contains(current) ->
+                selectedBrowse.requestFocusIfPresent()
+            current != null && dayRows.values.contains(current) && browseMode != BrowseMode.Schedule -> {
+                browseMode = BrowseMode.Schedule
+                selectedProgrammeId = firstProgrammeForSelection()?.id
+                renderAll(FocusTarget.Day(selectedDayId))
+                true
+            }
+            current == null && browseMode != BrowseMode.Schedule -> {
+                browseMode = BrowseMode.Schedule
+                selectedProgrammeId = firstProgrammeForSelection()?.id
+                renderAll(FocusTarget.Day(selectedDayId))
+                true
+            }
+            else -> false
+        }
+    }
+
+    private fun View?.requestFocusIfPresent(): Boolean =
+        this?.requestFocus() == true
+
+    private fun View?.isInDetailStack(): Boolean {
+        var node = this
+        while (node != null) {
+            if (node == detailStack) {
+                return true
+            }
+            node = node.parent as? View
+        }
+        return false
     }
 
     private fun View.setHorizontalFocusTargets(left: View?, right: View?) {

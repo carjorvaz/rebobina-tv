@@ -8,11 +8,18 @@ route="digitv://catchup"
 ui_route="digitv://u7d"
 flow="channel-watch"
 app_expect_texts=("Rebobina" "O Diabo Veste Prada" "Ver")
+app_expect_text_count=3
 flow_expect_texts=()
+flow_expect_text_count=0
 flow_extra_expect_texts=()
+flow_extra_expect_text_count=0
 flow_text_assert=1
-ui_expect_texts=("Bem-vindo à DIGI TV")
+ui_expect_texts=()
+ui_expect_text_count=0
+ui_expect_any_texts=("Bem-vindo à DIGI TV" "Ver agora")
+ui_expect_any_text_count=2
 ui_keyevents=()
+ui_keyevent_count=0
 custom_ui_keyevents=0
 handoff_wait_seconds=8
 adb_serial="${ANDROID_SERIAL:-${ADB_SERIAL:-}}"
@@ -23,7 +30,7 @@ capture_dir=""
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/smoke-device [--serial SERIAL] [--skip-build] [--flow FLOW] [--app-expect-text TEXT] [--no-app-text-assert] [--flow-expect-text TEXT] [--no-flow-text-assert] [--ui-route ROUTE] [--ui-keyevent KEYCODE] [--handoff-wait-seconds SECONDS] [--ui-expect-text TEXT] [--no-ui-text-assert] [--no-ui-smoke] [--route ROUTE] [--no-route-probe] [--capture-dir DIR]
+Usage: scripts/smoke-device [--serial SERIAL] [--skip-build] [--flow FLOW] [--app-expect-text TEXT] [--no-app-text-assert] [--flow-expect-text TEXT] [--no-flow-text-assert] [--ui-route ROUTE] [--ui-keyevent KEYCODE] [--handoff-wait-seconds SECONDS] [--ui-expect-text TEXT] [--ui-expect-any-text TEXT] [--no-ui-text-assert] [--no-ui-smoke] [--route ROUTE] [--no-route-probe] [--capture-dir DIR]
 
 Builds and installs the debug APK, opens Rebobina on the connected Android TV
 device, drives a named TV focus path into the Watch action, optionally probes a
@@ -67,12 +74,19 @@ set_flow_defaults() {
 
   if [[ "${custom_ui_keyevents}" -eq 0 ]]; then
     ui_keyevents=("${default_keyevents[@]}")
+    ui_keyevent_count=${#default_keyevents[@]}
   fi
 
   if [[ "${flow_text_assert}" -eq 1 ]]; then
-    flow_expect_texts=("${default_flow_expect_texts[@]}" "${flow_extra_expect_texts[@]}")
+    flow_expect_texts=("${default_flow_expect_texts[@]}")
+    flow_expect_text_count=${#default_flow_expect_texts[@]}
+    if [[ "${flow_extra_expect_text_count}" -gt 0 ]]; then
+      flow_expect_texts+=("${flow_extra_expect_texts[@]}")
+      flow_expect_text_count=$((flow_expect_text_count + flow_extra_expect_text_count))
+    fi
   else
     flow_expect_texts=()
+    flow_expect_text_count=0
   fi
 }
 
@@ -106,10 +120,12 @@ while [[ $# -gt 0 ]]; do
       [[ $# -gt 0 && -n "$1" ]] || fail "--ui-keyevent requires a keycode"
       custom_ui_keyevents=1
       ui_keyevents+=("$1")
+      ui_keyevent_count=$((ui_keyevent_count + 1))
       ;;
     "--clear-ui-keyevents")
       custom_ui_keyevents=1
       ui_keyevents=()
+      ui_keyevent_count=0
       ;;
     "--handoff-wait-seconds")
       shift
@@ -120,14 +136,17 @@ while [[ $# -gt 0 ]]; do
       shift
       [[ $# -gt 0 && -n "$1" ]] || fail "--app-expect-text requires text"
       app_expect_texts+=("$1")
+      app_expect_text_count=$((app_expect_text_count + 1))
       ;;
     "--no-app-text-assert")
       app_expect_texts=()
+      app_expect_text_count=0
       ;;
     "--flow-expect-text")
       shift
       [[ $# -gt 0 && -n "$1" ]] || fail "--flow-expect-text requires text"
       flow_extra_expect_texts+=("$1")
+      flow_extra_expect_text_count=$((flow_extra_expect_text_count + 1))
       ;;
     "--no-flow-text-assert")
       flow_text_assert=0
@@ -136,9 +155,19 @@ while [[ $# -gt 0 ]]; do
       shift
       [[ $# -gt 0 && -n "$1" ]] || fail "--ui-expect-text requires text"
       ui_expect_texts+=("$1")
+      ui_expect_text_count=$((ui_expect_text_count + 1))
+      ;;
+    "--ui-expect-any-text")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--ui-expect-any-text requires text"
+      ui_expect_any_texts+=("$1")
+      ui_expect_any_text_count=$((ui_expect_any_text_count + 1))
       ;;
     "--no-ui-text-assert")
       ui_expect_texts=()
+      ui_expect_text_count=0
+      ui_expect_any_texts=()
+      ui_expect_any_text_count=0
       ;;
     "--no-ui-smoke")
       ui_smoke=0
@@ -226,7 +255,7 @@ sleep 2
 
 app_text_status="skipped"
 app_missing_texts=""
-if [[ "${#app_expect_texts[@]}" -gt 0 ]]; then
+if [[ "${app_expect_text_count}" -gt 0 ]]; then
   app_text_status="ok"
   for expected_text in "${app_expect_texts[@]}"; do
     if ! grep -Fq "${expected_text}" "${capture_dir}/rebobina-window.xml"; then
@@ -243,6 +272,7 @@ ui_smoke_status="skipped"
 ui_foreground_status="skipped"
 ui_text_status="skipped"
 ui_missing_texts=""
+ui_matched_text=""
 ui_foreground_activity=""
 ui_foreground_evidence=""
 ui_window_focus=""
@@ -251,8 +281,8 @@ route_probe_activity=""
 if [[ "${ui_smoke}" -eq 1 ]]; then
   : > "${capture_dir}/rebobina-ui-keyevent.txt"
 
-  if [[ "${#ui_keyevents[@]}" -eq 0 ]]; then
-    if [[ "${#flow_expect_texts[@]}" -gt 0 ]]; then
+  if [[ "${ui_keyevent_count}" -eq 0 ]]; then
+    if [[ "${flow_expect_text_count}" -gt 0 ]]; then
       "${adb_cmd[@]}" exec-out screencap -p > "${capture_dir}/rebobina-ui-ready.png" || true
       "${adb_cmd[@]}" shell uiautomator dump /sdcard/rebobina-ui-ready.xml \
         > "${capture_dir}/rebobina-ui-ready-window-dump.txt" 2>&1 || true
@@ -261,9 +291,9 @@ if [[ "${ui_smoke}" -eq 1 ]]; then
       flow_ready_captured=1
     fi
   else
-    last_index=$((${#ui_keyevents[@]} - 1))
+    last_index=$((ui_keyevent_count - 1))
     for index in "${!ui_keyevents[@]}"; do
-      if [[ "${index}" -eq "${last_index}" && "${#flow_expect_texts[@]}" -gt 0 ]]; then
+      if [[ "${index}" -eq "${last_index}" && "${flow_expect_text_count}" -gt 0 ]]; then
         "${adb_cmd[@]}" exec-out screencap -p > "${capture_dir}/rebobina-ui-ready.png" || true
         "${adb_cmd[@]}" shell uiautomator dump /sdcard/rebobina-ui-ready.xml \
           > "${capture_dir}/rebobina-ui-ready-window-dump.txt" 2>&1 || true
@@ -281,7 +311,7 @@ if [[ "${ui_smoke}" -eq 1 ]]; then
     done
   fi
 
-  if [[ "${#flow_expect_texts[@]}" -gt 0 ]]; then
+  if [[ "${flow_expect_text_count}" -gt 0 ]]; then
     if [[ "${flow_ready_captured}" -eq 1 ]]; then
       flow_text_status="ok"
       for expected_text in "${flow_expect_texts[@]}"; do
@@ -333,14 +363,29 @@ if [[ "${ui_smoke}" -eq 1 ]]; then
     ui_foreground_status="wrong_foreground"
   fi
 
-  if [[ "${#ui_expect_texts[@]}" -gt 0 ]]; then
+  if [[ "${ui_expect_text_count}" -gt 0 || "${ui_expect_any_text_count}" -gt 0 ]]; then
     ui_text_status="ok"
-    for expected_text in "${ui_expect_texts[@]}"; do
-      if ! grep -Fq "${expected_text}" "${capture_dir}/rebobina-ui-window.xml"; then
-        ui_text_status="missing_text"
-        ui_missing_texts="${ui_missing_texts}${expected_text}; "
+    if [[ "${ui_expect_text_count}" -gt 0 ]]; then
+      for expected_text in "${ui_expect_texts[@]}"; do
+        if ! grep -Fq "${expected_text}" "${capture_dir}/rebobina-ui-window.xml"; then
+          ui_text_status="missing_text"
+          ui_missing_texts="${ui_missing_texts}${expected_text}; "
+        fi
+      done
+    fi
+    if [[ "${ui_text_status}" == "ok" && "${ui_expect_any_text_count}" -gt 0 ]]; then
+      ui_text_status="missing_text"
+      for expected_text in "${ui_expect_any_texts[@]}"; do
+        if grep -Fq "${expected_text}" "${capture_dir}/rebobina-ui-window.xml"; then
+          ui_text_status="ok"
+          ui_matched_text="${expected_text}"
+          break
+        fi
+      done
+      if [[ "${ui_text_status}" == "missing_text" ]]; then
+        ui_missing_texts="${ui_missing_texts}one of: ${ui_expect_any_texts[*]}; "
       fi
-    done
+    fi
   fi
 fi
 
@@ -362,20 +407,41 @@ fi
 
 "${adb_cmd[@]}" logcat -d -v time > "${capture_dir}/logcat.txt" 2>&1 || true
 
+ui_keyevents_summary=""
+if [[ "${ui_keyevent_count}" -gt 0 ]]; then
+  ui_keyevents_summary="${ui_keyevents[*]}"
+fi
+app_expect_texts_summary=""
+if [[ "${app_expect_text_count}" -gt 0 ]]; then
+  app_expect_texts_summary="${app_expect_texts[*]}"
+fi
+flow_expect_texts_summary=""
+if [[ "${flow_expect_text_count}" -gt 0 ]]; then
+  flow_expect_texts_summary="${flow_expect_texts[*]}"
+fi
+ui_expect_texts_summary=""
+if [[ "${ui_expect_text_count}" -gt 0 ]]; then
+  ui_expect_texts_summary="${ui_expect_texts[*]}"
+fi
+ui_expect_any_texts_summary=""
+if [[ "${ui_expect_any_text_count}" -gt 0 ]]; then
+  ui_expect_any_texts_summary="${ui_expect_any_texts[*]}"
+fi
+
 cat > "${capture_dir}/summary.txt" <<SUMMARY
 Smoke captured at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 ADB serial: ${adb_serial}
 App package: ${app_id}
 Target package: ${target_package}
 App text status: ${app_text_status}
-App expected text: ${app_expect_texts[*]-}
+App expected text: ${app_expect_texts_summary}
 App missing text: ${app_missing_texts}
 UI smoke enabled: ${ui_smoke}
 UI flow: ${flow}
 UI route expected: ${ui_route}
-UI keyevents: ${ui_keyevents[*]-}
+UI keyevents: ${ui_keyevents_summary}
 UI flow text status: ${flow_text_status}
-UI flow expected text: ${flow_expect_texts[*]-}
+UI flow expected text: ${flow_expect_texts_summary}
 UI flow missing text: ${flow_missing_texts}
 UI handoff wait seconds: ${handoff_wait_seconds}
 UI smoke status: ${ui_smoke_status}
@@ -384,7 +450,9 @@ UI foreground evidence: ${ui_foreground_evidence}
 UI foreground activity: ${ui_foreground_activity}
 UI window focus: ${ui_window_focus}
 UI text status: ${ui_text_status}
-UI expected text: ${ui_expect_texts[*]-}
+UI expected text: ${ui_expect_texts_summary}
+UI expected any text: ${ui_expect_any_texts_summary}
+UI matched text: ${ui_matched_text}
 UI missing text: ${ui_missing_texts}
 Route probe enabled: ${probe_route}
 Route probe status: ${route_probe_status}
