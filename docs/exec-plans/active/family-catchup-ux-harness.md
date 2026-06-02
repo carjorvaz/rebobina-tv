@@ -66,7 +66,7 @@ This plan follows the OpenAI harness-engineering pattern:
 
 **Objective:** Make the UI easier for a non-technical viewer to operate with only D-pad, OK, and Back.
 
-**Status:** Harness presets implemented for the three representative Watch paths. `scripts/smoke-device --flow channel-watch`, `--flow movie-watch`, and `--flow series-watch` each capture a pre-handoff Rebobina checkpoint and then verify the official app handoff. Back now steps left through the remote-first browse levels — detail, programme, group/channel, first browse rail — and returns Movies/Séries discovery back to the normal day schedule before allowing top-level exit. Visual focus refinements remain separate UI work.
+**Status:** Harness presets implemented for the three representative Watch paths. `scripts/smoke-device --flow channel-watch`, `--flow movie-watch`, and `--flow series-watch` each capture a pre-handoff Rebobina checkpoint and then verify the official app handoff. Back now steps left through the remote-first browse levels — detail, programme, group/channel, first browse rail — and returns Movies/Séries discovery back to the normal day schedule before allowing top-level exit. Focus states now use density-aware rings, brighter focused fills, and a small focus lift so the selected remote target is easier to see at TV distance.
 
 **Files:**
 - Modify: `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt`

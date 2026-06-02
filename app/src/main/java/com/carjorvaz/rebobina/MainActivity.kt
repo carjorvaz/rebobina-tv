@@ -92,6 +92,8 @@ class MainActivity : Activity() {
     private fun buildUi() {
         val root = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            clipChildren = false
+            clipToPadding = false
             setBackgroundColor(color("background"))
             setPadding(dp(36), dp(24), dp(36), dp(30))
         }
@@ -145,6 +147,8 @@ class MainActivity : Activity() {
 
         val columns = LinearLayout(this).apply {
             orientation = LinearLayout.HORIZONTAL
+            clipChildren = false
+            clipToPadding = false
             setBaselineAligned(false)
             setPadding(0, dp(14), 0, 0)
         }
@@ -174,6 +178,8 @@ class MainActivity : Activity() {
     ): LinearLayout {
         val list = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            clipChildren = false
+            clipToPadding = false
         }
         assign(list)
         val titleView = panelTitle(title)
@@ -183,6 +189,8 @@ class MainActivity : Activity() {
             addView(
                 ScrollView(this@MainActivity).apply {
                     isFillViewport = true
+                    clipChildren = false
+                    clipToPadding = false
                     overScrollMode = View.OVER_SCROLL_NEVER
                     addView(list)
                 },
@@ -194,12 +202,16 @@ class MainActivity : Activity() {
     private fun buildDetailPanel(): LinearLayout {
         detailStack = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            clipChildren = false
+            clipToPadding = false
         }
         return panel().apply {
             addView(panelTitle(getString(R.string.details)))
             addView(
                 ScrollView(this@MainActivity).apply {
                     isFillViewport = true
+                    clipChildren = false
+                    clipToPadding = false
                     overScrollMode = View.OVER_SCROLL_NEVER
                     addView(detailStack)
                 },
@@ -491,6 +503,8 @@ class MainActivity : Activity() {
             detailStack.addView(sectionLabel(getString(R.string.more_episodes)), LinearLayout.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, dp(34)).withTopMargin(dp(18)))
             val episodeRow = LinearLayout(this).apply {
                 orientation = LinearLayout.HORIZONTAL
+                clipChildren = false
+                clipToPadding = false
             }
             episodeRow.addView(
                 actionButton(getString(R.string.previous_episode)) {
@@ -816,6 +830,8 @@ class MainActivity : Activity() {
     private fun panel(): LinearLayout =
         LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
+            clipChildren = false
+            clipToPadding = false
             setPadding(dp(14), dp(14), dp(14), dp(14))
             background = rounded("panel")
         }
@@ -900,8 +916,10 @@ class MainActivity : Activity() {
             setPadding(dp(12), dp(8), dp(12), dp(8))
             background = rowBackground(selected = selected, focused = false, accent = accent)
             setOnClickListener { action() }
+            applyFocusTreatment(false)
             setOnFocusChangeListener { view, hasFocus ->
                 view.background = rowBackground(selected = selected, focused = hasFocus, accent = accent)
+                view.applyFocusTreatment(hasFocus)
             }
         }
 
@@ -916,8 +934,10 @@ class MainActivity : Activity() {
             setTextColor(color("text_primary"))
             background = rounded("button")
             setOnClickListener { action() }
+            applyFocusTreatment(false)
             setOnFocusChangeListener { view, hasFocus ->
                 view.background = rounded(if (hasFocus) "button_focused" else "button")
+                view.applyFocusTreatment(hasFocus)
             }
         }
 
@@ -964,37 +984,49 @@ class MainActivity : Activity() {
             accent,
         )
 
+    private fun View.applyFocusTreatment(hasFocus: Boolean) {
+        val scale = if (hasFocus) 1.025f else 1f
+        val z = if (hasFocus) dp(8).toFloat() else 0f
+        animate().cancel()
+        animate()
+            .scaleX(scale)
+            .scaleY(scale)
+            .translationZ(z)
+            .setDuration(90L)
+            .start()
+    }
+
     private fun rounded(name: String, accent: Int? = null): GradientDrawable =
         GradientDrawable().apply {
             cornerRadius = dp(8).toFloat()
             when (name) {
                 "panel" -> {
                     setColor(color("panel"))
-                    setStroke(1, color("line"))
+                    setStroke(dp(1), color("line"))
                 }
                 "row" -> {
                     setColor(color("row"))
-                    setStroke(1, color("line_soft"))
+                    setStroke(dp(1), color("line_soft"))
                 }
                 "row_selected" -> {
                     setColor(color("row_selected"))
-                    setStroke(2, accent ?: color("accent"))
+                    setStroke(dp(2), accent ?: color("accent"))
                 }
                 "row_focused" -> {
                     setColor(color("row_focused"))
-                    setStroke(3, color("focus"))
+                    setStroke(dp(4), color("focus"))
                 }
                 "row_selected_focused" -> {
-                    setColor(color("row_selected"))
-                    setStroke(3, color("focus"))
+                    setColor(color("row_selected_focused"))
+                    setStroke(dp(4), color("focus"))
                 }
                 "button" -> {
                     setColor(color("button"))
-                    setStroke(1, color("line"))
+                    setStroke(dp(1), color("line"))
                 }
                 "button_focused" -> {
                     setColor(color("button_focused"))
-                    setStroke(3, color("focus"))
+                    setStroke(dp(4), color("focus"))
                 }
                 "badge" -> {
                     shape = GradientDrawable.OVAL
@@ -1008,11 +1040,11 @@ class MainActivity : Activity() {
                 }
                 "target_ok" -> {
                     setColor(Color.rgb(34, 78, 58))
-                    setStroke(1, Color.rgb(93, 192, 129))
+                    setStroke(dp(1), Color.rgb(93, 192, 129))
                 }
                 "target_missing" -> {
                     setColor(Color.rgb(92, 48, 43))
-                    setStroke(1, Color.rgb(229, 125, 88))
+                    setStroke(dp(1), Color.rgb(229, 125, 88))
                 }
                 else -> setColor(color("panel"))
             }
@@ -1033,10 +1065,11 @@ class MainActivity : Activity() {
             "background" -> Color.rgb(13, 17, 16)
             "panel" -> Color.rgb(27, 32, 31)
             "row" -> Color.rgb(34, 40, 39)
-            "row_selected" -> Color.rgb(49, 49, 37)
-            "row_focused" -> Color.rgb(39, 58, 59)
+            "row_selected" -> Color.rgb(55, 53, 36)
+            "row_selected_focused" -> Color.rgb(74, 70, 42)
+            "row_focused" -> Color.rgb(50, 75, 75)
             "button" -> Color.rgb(42, 48, 47)
-            "button_focused" -> Color.rgb(45, 68, 68)
+            "button_focused" -> Color.rgb(61, 80, 78)
             "line" -> Color.rgb(71, 82, 77)
             "line_soft" -> Color.rgb(50, 60, 56)
             "progress_track" -> Color.rgb(65, 71, 67)
@@ -1044,7 +1077,7 @@ class MainActivity : Activity() {
             "text_secondary" -> Color.rgb(201, 207, 199)
             "text_muted" -> Color.rgb(150, 160, 153)
             "accent" -> Color.rgb(232, 186, 82)
-            "focus" -> Color.rgb(98, 210, 205)
+            "focus" -> Color.rgb(140, 238, 232)
             else -> Color.rgb(232, 186, 82)
         }
 
