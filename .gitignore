@@ -1,5 +1,7 @@
 .gradle/
 .kotlin/
+.jj/
+.hermes/
 build/
 local.properties
 

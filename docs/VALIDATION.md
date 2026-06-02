@@ -3,6 +3,16 @@
 Validation should be quick enough for every agent run and strict enough to catch
 drift before it spreads.
 
+## Command Menu
+
+```sh
+just --list
+```
+
+`just` is the ergonomic command menu. It delegates to the canonical scripts
+rather than replacing them, and also exposes `jj-status`, `jj-diff`, and
+`jj-ops` for local-history inspection.
+
 ## Fast Check
 
 ```sh

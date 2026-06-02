@@ -13,12 +13,18 @@ right place.
   replacement.
 - Use Android intents and declared deep links for handoff experiments.
 - Keep public naming provider-neutral.
+- Prefer Jujutsu (`jj`) for local change inspection/editing; keep Git/GitHub
+  for publication, tags, and CI visibility.
 - Do not add GitHub Actions workflows without explicit owner approval and
   billing review.
 
 ## Useful Commands
 
 ```sh
+just --list
+jj status
+jj diff
+jj op log
 scripts/validate
 scripts/validate --build
 scripts/check-doc-refs

@@ -19,12 +19,13 @@ or stream URLs.
 | Path | Lines | Purpose |
 | --- | ---: | --- |
 | `README.md` | 87 | Project purpose, safety boundary, and current operating model. |
-| `AGENTS.md` | 35 | Short agent entrypoint and command map. |
+| `AGENTS.md` | 41 | Short agent entrypoint and command map. |
 | `ARCHITECTURE.md` | 127 | Architecture boundary, package direction, and validation loop. |
+| `justfile` | 29 | Command menu for validation, review, and local JJ inspection. |
 | `settings.gradle.kts` | 18 | Gradle project configuration. |
 | `build.gradle.kts` | 4 | Gradle project configuration. |
 | `app/build.gradle.kts` | 30 | Gradle project configuration. |
-| `flake.nix` | 68 | Nix development environment and lockfile. |
+| `flake.nix` | 82 | Nix development environment and lockfile. |
 
 ## Android App Surface
 
@@ -50,25 +51,29 @@ or stream URLs.
 | `scripts/build-debug` | 12 | Debug APK build wrapper. |
 | `scripts/check-doc-refs` | 150 | Local documentation reference checker. |
 | `scripts/compare-redacted-shapes` | 96 | Redacted metadata-shape comparison helper. |
-| `scripts/generate-source-map` | 175 | Generated source-map producer. |
+| `scripts/generate-source-map` | 186 | Generated source-map producer. |
 | `scripts/install-debug` | 7 | Debug APK install wrapper. |
 | `scripts/normalize-synthetic-provider-metadata` | 212 | Host-side synthetic metadata normalization contract. |
 | `scripts/probe-route` | 172 | Direct provider deep-link probe. |
 | `scripts/probe-sections` | 20 | Broad provider section route probe. |
 | `scripts/redact-json-shape` | 107 | Provider metadata shape redactor. |
 | `scripts/smoke-device` | 318 | Android TV smoke harness and capture workflow. |
-| `scripts/validate` | 616 | Fast local repository validation harness. |
+| `scripts/validate` | 651 | Fast local repository validation harness. |
 
 ## Knowledge Base
 
 | Path | Lines | Purpose |
 | --- | ---: | --- |
+| `docs/QUALITY.md` | 24 | Quality scorecard and remaining gaps. |
+| `docs/RELIABILITY.md` | 48 | Reliability expectations and observation rules. |
+| `docs/SECURITY.md` | 56 | Provider, credential, and playback safety boundary. |
+| `docs/VALIDATION.md` | 137 | Validation commands and when to run them. |
 | `docs/design-docs/core-beliefs.md` | 28 | Design principles and harness-engineering notes. |
-| `docs/design-docs/harness-engineering.md` | 42 | Design principles and harness-engineering notes. |
+| `docs/design-docs/harness-engineering.md` | 66 | Design principles and harness-engineering notes. |
 | `docs/design-docs/index.md` | 9 | Design principles and harness-engineering notes. |
+| `docs/exec-plans/active/README.md` | 7 | In-progress execution plans. |
 | `docs/exec-plans/active/family-catchup-ux-harness.md` | 156 | In-progress execution plans. |
 | `docs/exec-plans/active/metadata-adapter-proof.md` | 56 | In-progress execution plans. |
-| `docs/exec-plans/active/README.md` | 7 | In-progress execution plans. |
 | `docs/exec-plans/completed/2026-05-17-device-evidence-harness.md` | 68 | Completed decision logs. |
 | `docs/exec-plans/completed/2026-05-17-fixture-gallery.md` | 42 | Completed decision logs. |
 | `docs/exec-plans/completed/2026-05-17-repository-harness.md` | 29 | Completed decision logs. |
@@ -80,14 +85,10 @@ or stream URLs.
 | `docs/product-specs/catch-up-handoff-gallery.md` | 100 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/index.md` | 16 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/metadata-adapter-boundary.md` | 152 | Product specs, adapter boundary, and provider evidence. |
+| `docs/product-specs/provider-evidence.schema.json` | 95 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json` | 80 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence/README.md` | 18 | Product specs, adapter boundary, and provider evidence. |
-| `docs/product-specs/provider-evidence.schema.json` | 95 | Product specs, adapter boundary, and provider evidence. |
-| `docs/QUALITY.md` | 24 | Quality scorecard and remaining gaps. |
 | `docs/references/README.md` | 15 | Safe reference outputs and generated metadata contracts. |
 | `docs/references/synthetic-provider-metadata-shape.json` | 765 | Safe reference outputs and generated metadata contracts. |
 | `docs/references/synthetic-provider-normalized-catalog.json` | 117 | Safe reference outputs and generated metadata contracts. |
-| `docs/RELIABILITY.md` | 48 | Reliability expectations and observation rules. |
 | `docs/research-notes.md` | 193 | Chronological research and device-observation notes. |
-| `docs/SECURITY.md` | 56 | Provider, credential, and playback safety boundary. |
-| `docs/VALIDATION.md` | 127 | Validation commands and when to run them. |

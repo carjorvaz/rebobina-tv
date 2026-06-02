@@ -40,6 +40,8 @@ required_files=(
   ".ignore"
   "AGENTS.md"
   "ARCHITECTURE.md"
+  "flake.nix"
+  "justfile"
   "build.gradle.kts"
   "settings.gradle.kts"
   "app/build.gradle.kts"
@@ -372,6 +374,39 @@ missing_evidence_roots="$(comm -23 <(printf '%s\n' "${allowed_route_roots}") <(p
 
 grep -q "scripts/validate" "${repo_root}/AGENTS.md" \
   || fail "AGENTS.md must tell agents how to validate changes"
+
+grep -q 'Jujutsu (`jj`)' "${repo_root}/AGENTS.md" \
+  || fail "AGENTS.md must document JJ as the local history layer"
+
+grep -q '^\.jj/$' "${repo_root}/.gitignore" \
+  || fail ".gitignore must exclude local JJ state"
+
+grep -q '^\.hermes/$' "${repo_root}/.gitignore" \
+  || fail ".gitignore must exclude local Hermes state"
+
+grep -q '^\.jj/$' "${repo_root}/.ignore" \
+  || fail ".ignore must exclude local JJ state"
+
+grep -q '^\.hermes/$' "${repo_root}/.ignore" \
+  || fail ".ignore must exclude local Hermes state"
+
+grep -q "pkgs.jujutsu" "${repo_root}/flake.nix" \
+  || fail "flake dev shell must expose Jujutsu"
+
+grep -q "pkgs.difftastic" "${repo_root}/flake.nix" \
+  || fail "flake dev shell must expose difftastic"
+
+grep -q "pkgs.just" "${repo_root}/flake.nix" \
+  || fail "flake dev shell must expose just"
+
+grep -q '^jj-status:' "${repo_root}/justfile" \
+  || fail "justfile must expose jj-status"
+
+grep -q '^jj-diff:' "${repo_root}/justfile" \
+  || fail "justfile must expose jj-diff"
+
+grep -q '^jj-ops:' "${repo_root}/justfile" \
+  || fail "justfile must expose jj-ops"
 
 grep -q "GitHub Actions" "${repo_root}/AGENTS.md" \
   || fail "AGENTS.md must warn agents about GitHub Actions billing review"

@@ -8,6 +8,8 @@ future work.
 
 - `AGENTS.md` is a short map.
 - `docs/` is the system of record.
+- `just --list` is the command menu for validation, review, and local history
+  inspection.
 - `scripts/validate` is the default feedback loop.
 - `scripts/check-doc-refs` keeps local docs and documented repo paths from
   silently drifting.
@@ -27,6 +29,28 @@ future work.
 3. Turn recurring review comments into docs or validation checks.
 4. Keep validation commands runnable from a clean checkout.
 5. Record provider findings without sensitive account or stream data.
+
+## Local History
+
+Use Jujutsu (`jj`) as the local editing/history layer for agent work:
+
+```sh
+jj status
+jj diff
+jj op log
+```
+
+Keep Git/GitHub as the publication and compatibility layer:
+
+```sh
+jj commit -m "Concise change summary"
+jj bookmark move main --to @-
+git push origin main
+jj status
+```
+
+This preserves GitHub, CI, and tag compatibility while giving agents clearer
+local state, easier undo, and safer iterative history editing.
 
 ## Next Harness Investments
 

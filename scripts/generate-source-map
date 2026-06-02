@@ -52,6 +52,7 @@ purpose_for() {
     AGENTS.md) echo "Short agent entrypoint and command map." ;;
     ARCHITECTURE.md) echo "Architecture boundary, package direction, and validation loop." ;;
     README.md) echo "Project purpose, safety boundary, and current operating model." ;;
+    justfile) echo "Command menu for validation, review, and local JJ inspection." ;;
     app/src/main/AndroidManifest.xml) echo "Android TV launcher and app declaration." ;;
     app/src/main/assets/sample-catchup.json) echo "Safe local catch-up catalog fixture." ;;
     app/src/main/assets/sample-provider-metadata.json) echo "Synthetic provider-shaped metadata fixture." ;;
@@ -100,7 +101,7 @@ sorted_files_under() {
 
   find "${repo_root}/${root}" "$@" -type f \
     | sed "s#^${repo_root}/##" \
-    | sort
+    | LC_ALL=C sort
 }
 
 generate() {
@@ -127,6 +128,7 @@ HEADER
     "README.md"
     "AGENTS.md"
     "ARCHITECTURE.md"
+    "justfile"
     "settings.gradle.kts"
     "build.gradle.kts"
     "app/build.gradle.kts"
@@ -134,17 +136,26 @@ HEADER
   )
   emit_file_table "Root And Build Files" "${root_files[@]}"
 
-  mapfile -t app_files < <(sorted_files_under "app/src/main")
+  local app_files=()
+  while IFS= read -r path; do
+    app_files+=("${path}")
+  done < <(sorted_files_under "app/src/main")
   emit_file_table "Android App Surface" "${app_files[@]}"
 
-  mapfile -t script_files < <(sorted_files_under "scripts")
+  local script_files=()
+  while IFS= read -r path; do
+    script_files+=("${path}")
+  done < <(sorted_files_under "scripts")
   emit_file_table "Local Harness Scripts" "${script_files[@]}"
 
-  mapfile -t doc_files < <(
+  local doc_files=()
+  while IFS= read -r path; do
+    doc_files+=("${path}")
+  done < <(
     find "${repo_root}/docs" -type f \
       ! -path "${repo_root}/docs/generated/source-map.md" \
       | sed "s#^${repo_root}/##" \
-      | sort
+      | LC_ALL=C sort
   )
   emit_file_table "Knowledge Base" "${doc_files[@]}"
 }
