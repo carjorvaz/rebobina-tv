@@ -20,7 +20,7 @@ or stream URLs.
 | --- | ---: | --- |
 | `README.md` | 87 | Project purpose, safety boundary, and current operating model. |
 | `AGENTS.md` | 41 | Short agent entrypoint and command map. |
-| `ARCHITECTURE.md` | 127 | Architecture boundary, package direction, and validation loop. |
+| `ARCHITECTURE.md` | 129 | Architecture boundary, package direction, and validation loop. |
 | `justfile` | 29 | Command menu for validation, review, and local JJ inspection. |
 | `settings.gradle.kts` | 18 | Gradle project configuration. |
 | `build.gradle.kts` | 4 | Gradle project configuration. |
@@ -34,14 +34,14 @@ or stream URLs.
 | `app/src/main/AndroidManifest.xml` | 37 | Android TV launcher and app declaration. |
 | `app/src/main/assets/sample-catchup.json` | 220 | Safe local catch-up catalog fixture. |
 | `app/src/main/assets/sample-provider-metadata.json` | 213 | Synthetic provider-shaped metadata fixture. |
-| `app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt` | 192 | Normalized catalog models, fixture source, and JSON parser. |
-| `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 1135 | Android TV gallery UI, focus routing, and provider handoff. |
+| `app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt` | 205 | Normalized catalog models, fixture source, and JSON parser. |
+| `app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt` | 1144 | Android TV gallery UI, focus routing, and provider handoff. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt` | 224 | Synthetic provider metadata source and normalizer proof. |
 | `app/src/main/java/com/carjorvaz/rebobina/ProviderRoutes.kt` | 43 | Provider deep-link route composition helpers. |
 | `app/src/main/res/drawable/ic_launcher.xml` | 16 | Launcher icon and TV banner resources. |
 | `app/src/main/res/drawable/tv_banner.xml` | 22 | Launcher icon and TV banner resources. |
-| `app/src/main/res/values-pt/strings.xml` | 73 | Portuguese UI strings. |
-| `app/src/main/res/values/strings.xml` | 72 | Default UI strings. |
+| `app/src/main/res/values-pt/strings.xml` | 74 | Portuguese UI strings. |
+| `app/src/main/res/values/strings.xml` | 73 | Default UI strings. |
 | `app/src/main/res/values/styles.xml` | 8 | Android style declarations. |
 
 ## Local Harness Scripts
@@ -57,8 +57,8 @@ or stream URLs.
 | `scripts/probe-route` | 172 | Direct provider deep-link probe. |
 | `scripts/probe-sections` | 20 | Broad provider section route probe. |
 | `scripts/redact-json-shape` | 107 | Provider metadata shape redactor. |
-| `scripts/smoke-device` | 511 | Android TV smoke harness and capture workflow. |
-| `scripts/validate` | 674 | Fast local repository validation harness. |
+| `scripts/smoke-device` | 522 | Android TV smoke harness and capture workflow. |
+| `scripts/validate` | 692 | Fast local repository validation harness. |
 
 ## Knowledge Base
 
@@ -67,13 +67,13 @@ or stream URLs.
 | `docs/QUALITY.md` | 24 | Quality scorecard and remaining gaps. |
 | `docs/RELIABILITY.md` | 48 | Reliability expectations and observation rules. |
 | `docs/SECURITY.md` | 56 | Provider, credential, and playback safety boundary. |
-| `docs/VALIDATION.md` | 151 | Validation commands and when to run them. |
+| `docs/VALIDATION.md` | 164 | Validation commands and when to run them. |
 | `docs/design-docs/core-beliefs.md` | 28 | Design principles and harness-engineering notes. |
 | `docs/design-docs/harness-engineering.md` | 66 | Design principles and harness-engineering notes. |
 | `docs/design-docs/index.md` | 9 | Design principles and harness-engineering notes. |
 | `docs/exec-plans/active/README.md` | 7 | In-progress execution plans. |
 | `docs/exec-plans/active/family-catchup-ux-harness.md` | 160 | In-progress execution plans. |
-| `docs/exec-plans/active/metadata-adapter-proof.md` | 56 | In-progress execution plans. |
+| `docs/exec-plans/active/metadata-adapter-proof.md` | 59 | In-progress execution plans. |
 | `docs/exec-plans/completed/2026-05-17-device-evidence-harness.md` | 68 | Completed decision logs. |
 | `docs/exec-plans/completed/2026-05-17-fixture-gallery.md` | 42 | Completed decision logs. |
 | `docs/exec-plans/completed/2026-05-17-repository-harness.md` | 29 | Completed decision logs. |

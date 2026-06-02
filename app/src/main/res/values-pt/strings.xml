@@ -4,6 +4,7 @@
     <string name="screen_title">Rebobina</string>
     <string name="prototype_subtitle">Protótipo local · dados fictícios · passagem oficial</string>
     <string name="status_fixture_mode">A navegar metadados locais seguros de catch-up. Ver abre a app oficial de TV.</string>
+    <string name="status_provider_snapshot_mode">A navegar metadados sintéticos de fornecedor. Ver continua a abrir a app oficial de TV.</string>
     <string name="lab_description">Laboratório Android TV para deep links declarados pelo fornecedor.</string>
     <string name="target_available">Destino disponível</string>
     <string name="target_missing">Destino não encontrado</string>

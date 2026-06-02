@@ -48,7 +48,9 @@ navigation when the normalized metadata has season neighbours.
 `ProviderMetadataSnapshotSource` is a synthetic proof source. It parses
 provider-like metadata fields into the same `CatchupCatalog` without exposing
 tokens, raw responses, playback URLs, or DRM fields. It is not the default app
-source.
+source. Debug/test launches can explicitly request it with the
+`rebobina.catalog_source=provider-snapshot` intent extra; launcher/default app
+starts still load `AssetCatchupCatalogSource`.
 
 Watch and shortcut actions launch provider route shapes through a fixed package
 and scheme:

@@ -21,6 +21,7 @@ ui_expect_any_text_count=2
 ui_keyevents=()
 ui_keyevent_count=0
 custom_ui_keyevents=0
+catalog_source=""
 handoff_wait_seconds=8
 adb_serial="${ANDROID_SERIAL:-${ADB_SERIAL:-}}"
 run_build=1
@@ -30,7 +31,7 @@ capture_dir=""
 
 usage() {
   cat <<'USAGE'
-Usage: scripts/smoke-device [--serial SERIAL] [--skip-build] [--flow FLOW] [--app-expect-text TEXT] [--no-app-text-assert] [--flow-expect-text TEXT] [--no-flow-text-assert] [--ui-route ROUTE] [--ui-keyevent KEYCODE] [--handoff-wait-seconds SECONDS] [--ui-expect-text TEXT] [--ui-expect-any-text TEXT] [--no-ui-text-assert] [--no-ui-smoke] [--route ROUTE] [--no-route-probe] [--capture-dir DIR]
+Usage: scripts/smoke-device [--serial SERIAL] [--skip-build] [--flow FLOW] [--catalog-source SOURCE] [--app-expect-text TEXT] [--no-app-text-assert] [--flow-expect-text TEXT] [--no-flow-text-assert] [--ui-route ROUTE] [--ui-keyevent KEYCODE] [--handoff-wait-seconds SECONDS] [--ui-expect-text TEXT] [--ui-expect-any-text TEXT] [--no-ui-text-assert] [--no-ui-smoke] [--route ROUTE] [--no-route-probe] [--capture-dir DIR]
 
 Builds and installs the debug APK, opens Rebobina on the connected Android TV
 device, drives a named TV focus path into the Watch action, optionally probes a
@@ -104,6 +105,11 @@ while [[ $# -gt 0 ]]; do
       shift
       [[ $# -gt 0 && -n "$1" ]] || fail "--flow requires a flow name"
       flow="$1"
+      ;;
+    "--catalog-source")
+      shift
+      [[ $# -gt 0 && -n "$1" ]] || fail "--catalog-source requires a source name"
+      catalog_source="$1"
       ;;
     "--route")
       shift
@@ -245,7 +251,11 @@ mkdir -p "${capture_dir}"
 "${adb_cmd[@]}" shell wm dismiss-keyguard > "${capture_dir}/dismiss-keyguard.txt" 2>&1 || true
 "${adb_cmd[@]}" shell am force-stop "${target_package}" > "${capture_dir}/target-force-stop.txt" 2>&1 || true
 "${adb_cmd[@]}" shell am force-stop "${app_id}" > "${capture_dir}/rebobina-force-stop.txt" 2>&1 || true
-"${adb_cmd[@]}" shell am start -W -n "${app_id}/.MainActivity" > "${capture_dir}/rebobina-start.txt"
+app_start_args=(-W -n "${app_id}/.MainActivity")
+if [[ -n "${catalog_source}" ]]; then
+  app_start_args+=(--es "rebobina.catalog_source" "${catalog_source}")
+fi
+"${adb_cmd[@]}" shell am start "${app_start_args[@]}" > "${capture_dir}/rebobina-start.txt"
 sleep 2
 "${adb_cmd[@]}" exec-out screencap -p > "${capture_dir}/rebobina.png" || true
 "${adb_cmd[@]}" shell uiautomator dump /sdcard/rebobina-smoke.xml \
@@ -432,6 +442,7 @@ cat > "${capture_dir}/summary.txt" <<SUMMARY
 Smoke captured at: $(date -u +%Y-%m-%dT%H:%M:%SZ)
 ADB serial: ${adb_serial}
 App package: ${app_id}
+Catalog source: ${catalog_source:-default-fixture}
 Target package: ${target_package}
 App text status: ${app_text_status}
 App expected text: ${app_expect_texts_summary}

@@ -149,3 +149,16 @@ scripts/normalize-synthetic-provider-metadata app/src/main/assets/sample-provide
 The output mirrors the provider-metadata-to-catalog contract so agents can
 inspect normalized days, channels, programmes, and inferred episode neighbours
 without launching Android.
+
+To prove that the Android UI can render the synthetic provider snapshot without
+making it the default source, run the connected-device smoke with an explicit
+catalog source:
+
+```sh
+scripts/smoke-device --serial SERIAL --skip-build --flow channel-watch \
+  --catalog-source provider-snapshot --app-expect-text "metadados sintéticos" \
+  --no-route-probe
+```
+
+The smoke records `Catalog source: provider-snapshot` in `summary.txt`; default
+launcher/smoke runs should continue to report `Catalog source: default-fixture`.

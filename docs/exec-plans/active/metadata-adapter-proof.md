@@ -47,7 +47,10 @@ the official provider app.
 
 - A future adapter implements `CatchupCatalogSource`.
 - The UI remains unchanged when swapping fixture data for normalized provider
-  metadata.
+  metadata. This is now exercisable through the explicit test launch extra
+  `rebobina.catalog_source=provider-snapshot` and the smoke harness
+  `--catalog-source provider-snapshot` option; the launcher default remains the
+  safe local fixture.
 - Validation rejects raw streams, tokens, playlists, and credential-like data.
 - Evidence documents route and field mapping without private response bodies.
 - The synthetic normalized catalog reference stays reproducible with

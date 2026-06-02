@@ -3,6 +3,7 @@
     <string name="screen_title">Rebobina</string>
     <string name="prototype_subtitle">Local prototype · fictional metadata · official playback handoff</string>
     <string name="status_fixture_mode">Browsing safe local catch-up metadata. Watch actions open the official TV app.</string>
+    <string name="status_provider_snapshot_mode">Browsing synthetic provider metadata. Watch actions still open the official TV app.</string>
     <string name="lab_description">Android TV handoff lab for provider-declared deep links.</string>
     <string name="target_available">Target available</string>
     <string name="target_missing">Target not found</string>

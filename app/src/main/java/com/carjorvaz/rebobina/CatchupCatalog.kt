@@ -1,6 +1,7 @@
 package com.carjorvaz.rebobina
 
 import android.content.Context
+import android.content.Intent
 import org.json.JSONObject
 
 data class CatchupCatalog(
@@ -112,8 +113,20 @@ interface CatchupCatalogSource {
 }
 
 object CatchupCatalogLoader {
+    const val EXTRA_CATALOG_SOURCE: String = "rebobina.catalog_source"
+    const val SOURCE_PROVIDER_SNAPSHOT: String = "provider-snapshot"
+
     fun load(context: Context): CatchupCatalog =
         AssetCatchupCatalogSource().load(context)
+
+    fun load(context: Context, intent: Intent?): CatchupCatalog =
+        sourceFor(intent).load(context)
+
+    fun sourceFor(intent: Intent?): CatchupCatalogSource =
+        when (intent?.getStringExtra(EXTRA_CATALOG_SOURCE)) {
+            SOURCE_PROVIDER_SNAPSHOT -> ProviderMetadataSnapshotSource()
+            else -> AssetCatchupCatalogSource()
+        }
 }
 
 class AssetCatchupCatalogSource(

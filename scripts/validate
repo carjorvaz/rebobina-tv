@@ -126,8 +126,11 @@ grep -q "Intent.ACTION_VIEW" "${repo_root}/app/src/main/java/com/carjorvaz/rebob
 grep -q "RebobinaHandoff" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
   || fail "MainActivity should log handoff attempts for smoke validation"
 
-grep -q "CatchupCatalogLoader.load" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
-  || fail "MainActivity should render the local catch-up catalog"
+grep -q "CatchupCatalogLoader.sourceFor(intent)" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+  || fail "MainActivity should choose its catalog source through the loader boundary"
+
+grep -q "catalogSource.load(this)" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/MainActivity.kt" \
+  || fail "MainActivity should render a CatchupCatalogSource catalog"
 
 grep -q "interface CatchupCatalogSource" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt" \
   || fail "CatchupCatalog should expose a metadata source boundary"
@@ -140,6 +143,15 @@ grep -q "ProviderMetadataSnapshotParser" "${repo_root}/app/src/main/java/com/car
 
 grep -q "ProviderMetadataSnapshotSource" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt" \
   || fail "ProviderMetadataSnapshot should expose a catalog source for synthetic metadata"
+
+grep -q "rebobina.catalog_source" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt" \
+  || fail "CatchupCatalogLoader should expose a safe test-only catalog source switch"
+
+grep -q "ProviderMetadataSnapshotSource()" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt" \
+  || fail "CatchupCatalogLoader should be able to load the synthetic provider snapshot when explicitly requested"
+
+grep -q "AssetCatchupCatalogSource().load(context)" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/CatchupCatalog.kt" \
+  || fail "CatchupCatalogLoader should keep the safe fixture as the default app source"
 
 grep -q ": CatchupCatalogSource" "${repo_root}/app/src/main/java/com/carjorvaz/rebobina/ProviderMetadataSnapshot.kt" \
   || fail "synthetic provider metadata source should implement CatchupCatalogSource"
@@ -580,6 +592,12 @@ done
 
 grep -q -- "--no-ui-smoke" "${repo_root}/scripts/smoke-device" \
   || fail "scripts/smoke-device must support disabling UI smoke"
+
+grep -q -- "--catalog-source" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must support explicit catalog source smoke launches"
+
+grep -q "rebobina.catalog_source" "${repo_root}/scripts/smoke-device" \
+  || fail "scripts/smoke-device must pass the catalog source intent extra when requested"
 
 grep -q "UI keyevents" "${repo_root}/scripts/smoke-device" \
   || fail "scripts/smoke-device must report remote key sequence"

@@ -21,6 +21,7 @@ import kotlin.math.roundToInt
 
 class MainActivity : Activity() {
     private lateinit var catalog: CatchupCatalog
+    private lateinit var catalogSource: CatchupCatalogSource
     private lateinit var statusText: TextView
     private lateinit var targetText: TextView
     private lateinit var channelRailTitle: TextView
@@ -42,7 +43,8 @@ class MainActivity : Activity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        catalog = CatchupCatalogLoader.load(this)
+        catalogSource = CatchupCatalogLoader.sourceFor(intent)
+        catalog = catalogSource.load(this)
         selectedDayId = catalog.days.firstOrNull()?.id.orEmpty()
         selectedChannelId = firstChannelForDay(selectedDayId) ?: catalog.channels.firstOrNull()?.id.orEmpty()
         selectedProgrammeId = firstProgrammeForSelection()?.id
@@ -134,7 +136,7 @@ class MainActivity : Activity() {
         root.addView(header)
 
         statusText = TextView(this).apply {
-            text = getString(R.string.status_fixture_mode)
+            text = catalogSourceStatusText()
             textSize = 15f
             setTextColor(color("text_muted"))
             gravity = Gravity.CENTER_VERTICAL or Gravity.START
@@ -826,6 +828,13 @@ class MainActivity : Activity() {
     private fun setStatus(text: String) {
         statusText.text = text
     }
+
+    private fun catalogSourceStatusText(): String =
+        if (catalogSource.sourceName.startsWith("provider-snapshot:")) {
+            getString(R.string.status_provider_snapshot_mode)
+        } else {
+            getString(R.string.status_fixture_mode)
+        }
 
     private fun panel(): LinearLayout =
         LinearLayout(this).apply {
