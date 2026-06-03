@@ -87,7 +87,7 @@ This plan follows the OpenAI harness-engineering pattern:
 
 **Objective:** Prove that safe provider metadata can populate the richer UX without committing private responses.
 
-**Status:** Synthetic provider metadata now includes a detail-derived RTP2 movie proof: the schedule event omits its discovery category, `eventDetails` supplies the movie classification/title/description, and the normalized reference shows the item in the same `CatchupCatalog` shape with broad Watch route plus separate exact-route candidate.
+**Status:** Synthetic provider metadata now includes a detail-derived RTP2 movie proof: the schedule event omits its discovery category, `eventDetails` supplies the movie classification/title/description, and the normalized reference shows the item in the same `CatchupCatalog` shape with broad Watch route plus separate exact-route candidate. A logged-in BRAVIA smoke on 2026-06-03 proved the in-app provider-snapshot path reaches the RTP2 movie and hands off to the official app via the broad `digitv://u7d` route.
 
 **Files:**
 - Modify: `app/src/main/assets/sample-provider-metadata.json`
@@ -120,7 +120,7 @@ This plan follows the OpenAI harness-engineering pattern:
 2. Use `scripts/redact-json-shape` for any metadata-shape evidence; prefer stdin for live/session data.
 3. Treat provider route-handler success as weaker than exact field mapping success.
 4. Keep `candidateProviderRoute` separate from active `providerRoute` until exact route evidence proves the mapping.
-5. Add a dated evidence record for every verified, route-verified, failed, or rejected shape.
+5. Add a dated evidence record for every verified, route-verified, failed, or rejected shape. The 2026-06-03 logged-in smoke is recorded as broad `u7d` section evidence, not exact item evidence.
 
 ## Phase 5: Validation And Quality Gates
 

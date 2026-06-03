@@ -191,3 +191,13 @@ The provider accepted the route shape, returned Android `Status: ok`, and
 foregrounded `ro.digionline.tv/.MainActivity`, while the provider UI showed its
 own generic error message. This is useful route-shape evidence, not proof that
 synthetic metadata values map to a playable catch-up item.
+
+On 2026-06-03 at 09:34:08Z, after manual login on the BRAVIA,
+`scripts/smoke-device --serial bravia-3:5555 --skip-build --flow
+provider-movie-watch --no-route-probe` proved the richer local metadata path
+through Rebobina: provider-snapshot mode selected the RTP2 movie `A Viagem de
+Chihiro`, focused `Ver`, logged `digitv://u7d`, foregrounded
+`ro.digionline.tv/.MainActivity`, and matched the logged-in provider marker
+`Ver agora`. The capture stays local/ignored because it contains logged-in
+provider UI. This proves broad section handoff after a rich local selection; it
+still does not prove an exact movie or catch-up item landing.

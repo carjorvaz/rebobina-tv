@@ -87,8 +87,9 @@ or stream URLs.
 | `docs/product-specs/metadata-adapter-boundary.md` | 153 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence.schema.json` | 95 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence/2026-05-17-digionline-tv.json` | 80 | Product specs, adapter boundary, and provider evidence. |
+| `docs/product-specs/provider-evidence/2026-06-03-digionline-tv-logged-in-smoke.json` | 21 | Product specs, adapter boundary, and provider evidence. |
 | `docs/product-specs/provider-evidence/README.md` | 18 | Product specs, adapter boundary, and provider evidence. |
 | `docs/references/README.md` | 15 | Safe reference outputs and generated metadata contracts. |
 | `docs/references/synthetic-provider-metadata-shape.json` | 845 | Safe reference outputs and generated metadata contracts. |
 | `docs/references/synthetic-provider-normalized-catalog.json` | 143 | Safe reference outputs and generated metadata contracts. |
-| `docs/research-notes.md` | 193 | Chronological research and device-observation notes. |
+| `docs/research-notes.md` | 203 | Chronological research and device-observation notes. |

@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "providerName": "Digi Online TV",
+  "appPackage": "ro.digionline.tv",
+  "scheme": "digitv",
+  "providerAppVersion": "2.7.0",
+  "device": "Sony BRAVIA Android TV test device",
+  "observedDate": "2026-06-03",
+  "source": "docs/research-notes.md; captures/smoke-20260603T093334Z/summary.txt",
+  "records": [
+    {
+      "purpose": "section",
+      "routeName": "u7d",
+      "uriShape": "digitv://u7d",
+      "result": "verified_exact",
+      "evidence": "Logged-in smoke run 2026-06-03T09:34:08Z drove Rebobina's provider-snapshot movie path to A Viagem de Chihiro on RTP 2, focused Watch, logged RebobinaHandoff start/result for digitv://u7d, foregrounded ro.digionline.tv/.MainActivity, and matched the safe logged-in provider marker Ver agora.",
+      "sensitiveData": "redacted",
+      "notes": "The capture remains ignored/local because the post-handoff screenshot contains logged-in provider UI. This proves the broad u7d section fallback after a richer local metadata selection; it does not prove exact item or playable catch-up route mapping."
+    }
+  ]
+}
