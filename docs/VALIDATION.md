@@ -75,9 +75,10 @@ pre-handoff Rebobina checkpoint for that flow, verifies the `RebobinaHandoff`
 log for `digitv://u7d`, waits for the official provider app to settle, asserts
 that the provider app becomes the visible TV window, probes stable
 non-sensitive destination text (by default one of the known safe provider markers,
-`Bem-vindo à DIGI TV` or `Ver agora`), asserts that the direct
-`digitv://catchup` control probe returns `Status: ok`, and writes screenshots
-plus logcat under ignored `captures/`.
+`Bem-vindo à DIGI TV`, `Ver agora`, `Escolha como iniciar sessão`, or
+`Inicie sessão com código PIN`), asserts that the direct `digitv://catchup`
+control probe returns `Status: ok`, and writes screenshots plus logcat under
+ignored `captures/`.
 
 The default UI flow is `channel-watch`. Representative family-facing presets:
 
